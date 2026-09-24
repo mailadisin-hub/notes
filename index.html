@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>Notes</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<!-- iPhone and iPad: added to the Home Screen it opens full screen, under a
+     see-through status bar that the safe-area padding already clears. -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Notes" />
+<meta name="theme-color" content="#000000" />
+</head>
+<body>
+
+<svg width="0" height="0" class="sprite" aria-hidden="true"><defs>
+  <g id="i-chev-left"><path d="M15.5 4.2 7.7 12l7.8 7.8"/></g>
+  <g id="i-chev-right"><path d="M9 5.2 15.8 12 9 18.8"/></g>
+  <g id="i-chev-up"><path d="M5.2 15.4 12 8.6l6.8 6.8"/></g>
+  <g id="i-chev-down"><path d="M5.2 8.6 12 15.4l6.8-6.8"/></g>
+  <g id="i-search"><circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4 20.4 20.4"/></g>
+  <g id="i-xfill"><circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/><path d="M9 9l6 6M15 9l-6 6" stroke="var(--fill-x)" stroke-width="2.1"/></g>
+  <g id="i-compose"><path d="M19.2 12.8v5.6a2.2 2.2 0 0 1-2.2 2.2H5.6a2.2 2.2 0 0 1-2.2-2.2V7a2.2 2.2 0 0 1 2.2-2.2h5.7"/><path d="m16.1 3.9 4 4-8 8-4.6.6.6-4.6z"/></g>
+  <g id="i-folder"><path d="M3 8.2A2.2 2.2 0 0 1 5.2 6h3.3l2 2.2h8.3a2.2 2.2 0 0 1 2.2 2.2v7.4a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 17.8z"/></g>
+  <g id="i-folder-stack"><path d="M6 5.4h2.6l1.6 1.8h6.6"/><path d="M3.4 10a2.2 2.2 0 0 1 2.2-2.2h2.9l1.7 1.9h7.6A2.2 2.2 0 0 1 20 11.9v6a2.2 2.2 0 0 1-2.2 2.2H5.6A2.2 2.2 0 0 1 3.4 17.9z"/></g>
+  <g id="i-folder-new"><path d="M3 8.2A2.2 2.2 0 0 1 5.2 6h3.3l2 2.2h8.3a2.2 2.2 0 0 1 2.2 2.2v7.4a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 17.8z"/><path d="M12 11.6v6M9 14.6h6"/></g>
+  <g id="i-gear-folder"><path d="M3 8.2A2.2 2.2 0 0 1 5.2 6h3.3l2 2.2h8.3a2.2 2.2 0 0 1 2.2 2.2v7.4a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 17.8z"/><circle cx="12" cy="14.6" r="2"/><path d="M12 11v1.1M12 17.1v1.1M9.4 13.1l1 .6M13.6 16.1l1 .6M14.6 13.1l-1 .6M10.4 16.1l-1 .6"/></g>
+  <g id="i-trash"><path d="M4.2 6.6h15.6M9.4 6.6V4.4a1 1 0 0 1 1-1h3.2a1 1 0 0 1 1 1v2.2"/><path d="M6.2 6.6 7.1 19a1.6 1.6 0 0 0 1.6 1.5h6.6a1.6 1.6 0 0 0 1.6-1.5l.9-12.4"/><path d="M10.3 10v6.6M13.7 10v6.6"/></g>
+  <g id="i-pin"><path d="M9.2 3.4h5.6l-.8 5.4 3.1 3.2H6.9l3.1-3.2z"/><path d="M12 12v8.4"/></g>
+  <g id="i-pin-slash"><path d="M9.2 3.4h5.6l-.8 5.4 3.1 3.2H6.9l3.1-3.2z"/><path d="M12 12v8.4"/><path d="M3.6 3.2 20.4 20.8"/></g>
+  <g id="i-ellipsis"><circle cx="12" cy="12" r="9.2"/><circle cx="7.8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16.2" cy="12" r="1.15" fill="currentColor" stroke="none"/></g>
+  <g id="i-share"><path d="M12 15.6V3.8"/><path d="m8.2 7.4 3.8-3.6 3.8 3.6"/><path d="M6.6 11.2H5.4a1.8 1.8 0 0 0-1.8 1.8v6.6a1.8 1.8 0 0 0 1.8 1.8h13.2a1.8 1.8 0 0 0 1.8-1.8V13a1.8 1.8 0 0 0-1.8-1.8h-1.2"/></g>
+  <g id="i-download"><path d="M12 3.8v11.8"/><path d="m8.2 12 3.8 3.6 3.8-3.6"/><path d="M4.2 17.4v1.8a1.8 1.8 0 0 0 1.8 1.8h12a1.8 1.8 0 0 0 1.8-1.8v-1.8"/></g>
+  <g id="i-check"><path d="M4.6 12.6 9.4 17.4 19.6 6.8"/></g>
+  <g id="i-check-circle"><circle cx="12" cy="12" r="9"/><path d="M7.9 12.2 10.8 15.1 16.2 9.3"/></g>
+  <g id="i-circle"><circle cx="12" cy="12" r="9"/></g>
+  <g id="i-minus-circle"><circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/><path d="M8 12h8" stroke="var(--fill-x)" stroke-width="2.2"/></g>
+  <g id="i-plus"><path d="M12 4.8v14.4M4.8 12h14.4"/></g>
+  <g id="i-aa"><path d="M2.4 18.6 7 5.4l4.6 13.2M3.9 14.6h6.2"/><path d="M20.4 10.8v7.8M20.4 13.2a3.4 3.4 0 0 0-3.4-3.4 3.6 3.6 0 0 0-2.7 1.1M20.4 15a3.6 3.6 0 0 1-3.6 3.6 2.6 2.6 0 0 1 0-5.2h3.6"/></g>
+  <g id="i-text-size"><path d="M2.6 18.4 6.4 7.6l3.8 10.8M3.8 15.2h5.2"/><path d="M13.4 18.4 17 9.4l3.6 9M14.5 15.8h5"/></g>
+  <g id="i-checklist"><path d="M3.4 6.4 5 8l3-3.2M3.4 17.2 5 18.8l3-3.2"/><path d="M11.2 6.6h9.4M11.2 17.4h9.4"/></g>
+  <g id="i-list-bullet"><circle cx="4.4" cy="6.6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.4" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.4" cy="17.4" r="1.3" fill="currentColor" stroke="none"/><path d="M8.8 6.6h11.8M8.8 12h11.8M8.8 17.4h11.8"/></g>
+  <g id="i-list-number"><path d="M9 6.6h11.6M9 12h11.6M9 17.4h11.6"/><path d="M3.2 4.8h1.4v4M2.9 12.2c0-.7.6-1.2 1.4-1.2s1.4.5 1.4 1.1c0 1.2-2.8 1.6-2.8 2.9h2.9M3 16.8c.9-.5 2.6-.3 2.6.8 0 .6-.5 1-1.2 1 .8 0 1.4.4 1.4 1.1 0 1.2-1.9 1.3-2.8.8"/></g>
+  <g id="i-list"><path d="M3.4 6.4h17.2M3.4 12h17.2M3.4 17.6h17.2"/></g>
+  <g id="i-indent"><path d="M9.6 6.6h11M9.6 12h11M9.6 17.4h11"/><path d="m3.4 9 3 3-3 3"/></g>
+  <g id="i-outdent"><path d="M9.6 6.6h11M9.6 12h11M9.6 17.4h11"/><path d="m6.4 9-3 3 3 3"/></g>
+  <g id="i-camera"><path d="M3.4 8.8a1.8 1.8 0 0 1 1.8-1.8h2l1.3-2.2h6.8L16.6 7h2.2a1.8 1.8 0 0 1 1.8 1.8v8.4a1.8 1.8 0 0 1-1.8 1.8H5.2a1.8 1.8 0 0 1-1.8-1.8z"/><circle cx="12" cy="12.8" r="3.5"/></g>
+  <g id="i-photo"><rect x="3.2" y="5" width="17.6" height="14" rx="2.4"/><circle cx="8.4" cy="9.8" r="1.7"/><path d="m4 16.6 4.4-4 3.4 3 3-2.6 5.2 4.4"/></g>
+  <g id="i-paperclip"><path d="M19 11.2 11.4 18.8a4.4 4.4 0 0 1-6.2-6.2l7.9-7.9a2.9 2.9 0 0 1 4.1 4.1l-7.8 7.8a1.4 1.4 0 0 1-2-2l7.1-7.1"/></g>
+  <g id="i-markup"><path d="M3.4 20.6h3.2l11-11a2.26 2.26 0 0 0-3.2-3.2l-11 11z"/><path d="m13.6 7.4 3 3"/></g>
+  <g id="i-marker"><path d="M5 19.4h4l10-10a2.6 2.6 0 0 0-3.6-3.6l-10 10z" /><path d="M5 19.4 3.4 21h6.2"/></g>
+  <g id="i-eraser"><path d="m9.4 20.4-5-5a2 2 0 0 1 0-2.8l8.2-8.2a2 2 0 0 1 2.8 0l4.6 4.6a2 2 0 0 1 0 2.8l-8.6 8.6z"/><path d="M6.6 13.2 13.4 20M9.4 20.4h10.6"/></g>
+  <g id="i-table"><rect x="3.2" y="5" width="17.6" height="14" rx="2"/><path d="M3.2 10h17.6M3.2 15h17.6M9.6 5v14M15.2 5v14"/></g>
+  <g id="i-lines"><path d="M3.4 7h17.2M3.4 12h17.2M3.4 17h11"/></g>
+  <g id="i-grid"><rect x="3.4" y="3.4" width="7" height="7" rx="1.8"/><rect x="13.6" y="3.4" width="7" height="7" rx="1.8"/><rect x="3.4" y="13.6" width="7" height="7" rx="1.8"/><rect x="13.6" y="13.6" width="7" height="7" rx="1.8"/></g>
+  <g id="i-lock"><rect x="5" y="10.4" width="14" height="10.2" rx="2.6"/><path d="M8.2 10.4V7.8a3.8 3.8 0 0 1 7.6 0v2.6"/></g>
+  <g id="i-lock-open"><rect x="5" y="10.4" width="14" height="10.2" rx="2.6"/><path d="M8.2 10.4V7.8a3.8 3.8 0 0 1 7.3-1.4"/></g>
+  <g id="i-restore"><path d="M3.8 12a8.2 8.2 0 1 0 2.5-5.9"/><path d="M3.4 3.4v4.4h4.4"/></g>
+  <g id="i-arrows"><path d="M7 9.4 12 4.6l5 4.8M7 14.6 12 19.4l5-4.8"/></g>
+  <g id="i-arrow-down"><path d="M12 4.6v14.8"/><path d="m6.6 14 5.4 5.4 5.4-5.4"/></g>
+  <g id="i-undo"><path d="M9.4 7.4 4.8 12l4.6 4.6"/><path d="M4.8 12h9.4a5 5 0 0 1 0 10h-3"/></g>
+  <g id="i-redo"><path d="M14.6 7.4 19.2 12l-4.6 4.6"/><path d="M19.2 12H9.8a5 5 0 0 0 0 10h3"/></g>
+  <g id="i-tag"><path d="M11.2 3.6H19a1.4 1.4 0 0 1 1.4 1.4v7.8a1.4 1.4 0 0 1-.4 1l-7.6 7.6a1.4 1.4 0 0 1-2 0l-7.4-7.4a1.4 1.4 0 0 1 0-2l7.2-8z"/><circle cx="16.2" cy="7.8" r="1.5"/></g>
+  <g id="i-copy"><rect x="8.4" y="8.4" width="12" height="12" rx="2.4"/><path d="M15.6 5.6a2.4 2.4 0 0 0-2.4-2H6a2.4 2.4 0 0 0-2.4 2.4v7.2a2.4 2.4 0 0 0 2 2.4"/></g>
+  <g id="i-info"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.6"/><circle cx="12" cy="7.8" r="1.05" fill="currentColor" stroke="none"/></g>
+  <g id="i-gear"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h13M21 17h-1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="19" cy="17" r="2"/></g>
+  <g id="i-haptic"><rect x="8.6" y="3.4" width="6.8" height="17.2" rx="2"/><path d="M4.6 9.2v5.6M2.2 10.8v2.4M19.4 9.2v5.6M21.8 10.8v2.4"/></g>
+  <g id="i-pencil"><path d="m14.6 4.6 4.8 4.8"/><path d="M4 20.4h4.2L20 8.6a2.6 2.6 0 0 0-3.7-3.7L4.6 16.6z"/></g>
+  <g id="i-cloud"><path d="M6.6 19.2a4.4 4.4 0 0 1-.5-8.77 5.8 5.8 0 0 1 11.2-1.2 3.9 3.9 0 0 1 .5 7.77z"/><path d="M12 11.4v5.4M9.6 13.8 12 11.4l2.4 2.4"/></g>
+  <g id="i-grip"><path d="M5 9h14M5 15h14"/></g>
+  <g id="i-pen"><path d="M8.2 3.4h7.6l-.6 6.6L12 20.6 8.8 10z"/><path d="M12 20.6V13"/><circle cx="12" cy="11.4" r="1.1"/></g>
+  <g id="i-doc"><path d="M13.6 3.4H7.2a2 2 0 0 0-2 2v13.2a2 2 0 0 0 2 2h9.6a2 2 0 0 0 2-2V8.6z"/><path d="M13.6 3.4v5.2h5.2"/></g>
+  <g id="i-arrow-left"><path d="M20 12H4.8M10.8 5.6 4.4 12l6.4 6.4"/></g>
+  <g id="i-vault"><rect x="3.4" y="4.6" width="17.2" height="4.6" rx="1.4"/><path d="M5 9.2v8.6A2.2 2.2 0 0 0 7.2 20h9.6a2.2 2.2 0 0 0 2.2-2.2V9.2"/><path d="M10 12.8h4"/></g>
+  <g id="i-people"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.2 19.4c.6-3.3 2.9-5.2 5.8-5.2s5.2 1.9 5.8 5.2"/><circle cx="16.8" cy="9.2" r="2.5"/><path d="M16 14.3c2.6-.1 4.4 1.5 4.9 4.4"/></g>
+  <g id="i-hand"><path d="M9.4 11.4V4.9a1.6 1.6 0 0 1 3.2 0v5.5"/><path d="M12.6 9.6a1.6 1.6 0 0 1 3.2 0v1.2"/><path d="M15.8 10.6a1.6 1.6 0 0 1 3.2 0v3.8a6.2 6.2 0 0 1-6.2 6.2h-1.3a6 6 0 0 1-4.9-2.5l-2.4-3.4a1.6 1.6 0 0 1 2.5-2l1.3 1.4"/></g>
+</defs></svg>
+
+<div id="stack" class="stack"></div>
+<div id="sheet-host"></div>
+<div id="toast-host"></div>
+
+<script src="boot-guard.js"></script>
+<script src="app.js" type="module"></script>
+</body>
+</html>
