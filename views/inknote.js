@@ -13,7 +13,7 @@ import { pop } from '../lib/router.js';
 import { store, save, newNote, noteById } from '../lib/store.js';
 import { haptic } from '../lib/haptics.js';
 import { getInk, putInk } from '../lib/library.js';
-import { boxOf } from '../lib/ink.js';
+import { boxOf, BOARD, BOARD_START_TOP } from '../lib/ink.js';
 import { inkView } from '../lib/inkview.js';
 import { inkChrome } from './inkchrome.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
@@ -22,14 +22,9 @@ import { putAttachment, getAttachment } from '../lib/attachments.js';
 
 export const PAGE_WIDTH = 800;
 
-/**
- * Whiteboard: the same page, seventy-five page-widths across and down, opened
- * in the middle. It is not literally endless - a number has to stop somewhere -
- * but at writing size it is thousands of pages of room in every direction, and
- * "Find My Writing" is there for when you have panned into the empty part.
- */
-const BOARD = 60000;
-const BOARD_START_TOP = 300;
+/* A new handwritten note is a whiteboard: the page is the special case now, and
+   "Turn Off Whiteboard" in the menu is how you ask for one. */
+const NEW_NOTES_ARE_BOARDS = true;
 
 export const isDark = () => {
   const t = document.documentElement.getAttribute('data-theme');
@@ -52,6 +47,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
   screen.dataset.pane = 'detail';
 
   const page = { key: 'page', width: PAGE_WIDTH, height: 1400, minHeight: 1400, strokes: [], images: [], paper: 'plain' };
+  if (fresh && NEW_NOTES_ARE_BOARDS) shapePage(true);
   let loaded = false;
   let dirty = false;
 

@@ -18,7 +18,7 @@ import { push, pop, openDetail } from '../lib/router.js';
 import { store, save } from '../lib/store.js';
 import { haptic } from '../lib/haptics.js';
 import { account } from '../lib/sync.js';
-import { TOOL_IDS, INK, encodePoints, decodePoints, PAPERS } from '../lib/ink.js';
+import { TOOL_IDS, INK, encodePoints, decodePoints, PAPERS, BOARD } from '../lib/ink.js';
 import { inkView, newStrokeId } from '../lib/inkview.js';
 import * as shared from '../lib/shared.js';
 import { inkChrome } from './inkchrome.js';
@@ -369,7 +369,23 @@ export function sharedPageScreen(boardId) {
   const screen = el('section', { class: 'screen ink-screen' });
   screen.dataset.pane = 'detail';
 
-  const page = { key: 'page', width: PAGE_WIDTH, height: 1400, minHeight: 1400, strokes: [], images: [], paper: 'plain' };
+  /* A shared page is always a whiteboard. Several people writing at once need
+     room to spread out and keep out of each other's way, which a page does not
+     have, and there is no page edge to argue about. */
+  const page = {
+    key: 'page',
+    width: BOARD,
+    height: BOARD,
+    minHeight: BOARD,
+    unit: PAGE_WIDTH,
+    board: true,
+    strokes: [],
+    images: [],
+    paper: 'plain',
+  };
+  /* Pages written before they were boards have their strokes up by the origin,
+     a long way from where a board opens, so the first load goes to find them. */
+  let framed = false;
   let session = null;
   let stopPresence = null;
   let left = false;
@@ -391,7 +407,7 @@ export function sharedPageScreen(boardId) {
 
   const view = inkView({
     pages: [page],
-    grow: true,
+    grow: false,
     sidePad: 0,
     topPad: 72,
     bottomPad: 120,
@@ -470,7 +486,17 @@ export function sharedPageScreen(boardId) {
       page.strokes.length = 0;
       for (const s of keep) page.strokes.push(s);
       view.refresh();
+      frameOnce();
     }
+  }
+
+  /* The first writing to arrive decides where the board opens, so a page from
+     before boards - or one someone else started in a far corner - is on screen
+     rather than somewhere out in the empty part. */
+  function frameOnce() {
+    if (framed || (!page.strokes.length && !page.images.length)) return;
+    framed = true;
+    view.recentre();
   }
 
   function applyPictures() {
@@ -508,6 +534,7 @@ export function sharedPageScreen(boardId) {
       page.images.length = 0;
       for (const im of keep) page.images.push(im);
       view.refresh();
+      frameOnce();
     }
   }
 
@@ -661,6 +688,7 @@ export function sharedPageScreen(boardId) {
           if (session) session.write({ 'meta/paper': k });
         }),
       },
+      { label: 'Find My Writing', icon: 'search', onPick: () => view.recentre() },
       { label: 'Add a Picture', icon: 'photo', onPick: addPicture },
       {
         label: store.settings.fingerDraws ? 'Finger Scrolls' : 'Finger Draws',
