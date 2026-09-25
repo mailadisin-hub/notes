@@ -12,7 +12,7 @@
  * connection; the benefit is that shipping an update actually ships it.
  */
 
-const CACHE = 'notes-v6';
+const CACHE = 'notes-v7';
 /* The reader's fonts (KaTeX, PDF.js) are not listed: the fetch handler below
    caches them the first time a document needs them. */
 const SHELL = [
