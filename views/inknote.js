@@ -61,6 +61,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     paper: () => page.paper,
     fingerDraws: () => !!store.settings.fingerDraws,
     scribbleErases: () => store.settings.scribbleErases !== false,
+    onScribbleErase: (n) => toast(n === 1 ? 'Crossed out - undo brings it back' : `${n} crossed out - undo brings them back`),
     onChange: () => {
       dirty = true;
       scheduleSave();

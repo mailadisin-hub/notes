@@ -24,6 +24,19 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.5.7',
+    items: [
+      {
+        icon: 'eraser',
+        title: 'Scribbling Leaves Your Writing Alone',
+        body: 'Crossing out was catching joined handwriting - an m at speed was '
+          + 'enough to wipe out a word. It now asks whether the pen went over the '
+          + 'same ground again rather than how sharply it turned, which writing '
+          + 'never does. It also says so when it crosses something out.',
+      },
+    ],
+  },
+  {
     version: '0.5.6',
     items: [
       {
