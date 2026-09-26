@@ -81,6 +81,15 @@ export function inkChrome(view, opts) {
     tools.append(b);
   }
   if (opts.onImage) tools.append(button('photo', 'Add a picture', () => opts.onImage()));
+  /* The ruler sits with the tools because it is one: something you pick up,
+     draw along, and put down again. */
+  const rulerBtn = button('lines', 'Ruler', () => {
+    const on = !view.ruler;
+    view.setRuler(on || null);
+    rulerBtn.classList.toggle('on', on);
+    if (opts.onRulerToggle) opts.onRulerToggle(on);
+  });
+  tools.append(rulerBtn);
   tools.append(el('span', { class: 'pill-sep' }), colourDot);
 
   /* ---------------------------------------------------------------- right */

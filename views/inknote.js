@@ -60,6 +60,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     dark: isDark,
     paper: () => page.paper,
     fingerDraws: () => !!store.settings.fingerDraws,
+    scribbleErases: () => store.settings.scribbleErases !== false,
     onChange: () => {
       dirty = true;
       scheduleSave();

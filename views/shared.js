@@ -414,6 +414,7 @@ export function sharedPageScreen(boardId) {
     dark: isDark,
     paper: () => page.paper,
     fingerDraws: () => !!store.settings.fingerDraws,
+    scribbleErases: () => store.settings.scribbleErases !== false,
     onChange: () => sendChanges(),
     onDrawing: (stroke) => sendLive(stroke),
     onHistory: () => chrome.sync(),

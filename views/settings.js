@@ -216,6 +216,9 @@ export function settingsScreen() {
         toggleRow('Haptics', 'haptic',
           () => store.settings.haptics !== false,
           (v) => { store.settings.haptics = v; setHapticsEnabled(v); }),
+        toggleRow('Scribble to Erase', 'eraser',
+          () => store.settings.scribbleErases !== false,
+          (v) => { store.settings.scribbleErases = v; }),
         toggleRow('Split View', 'folder-stack',
           () => store.settings.splitView === true,
           (v) => { store.settings.splitView = v; setSplitView(v); }))));
@@ -265,7 +268,7 @@ export function settingsScreen() {
     body.append(el('div', { class: 'group' }, statsCard));
 
     body.append(el('p', { class: 'settings-footnote' },
-      el('span', { text: 'Notes 0.5.5' }),
+      el('span', { text: 'Notes 0.5.6' }),
       el('span', {
         text: sync.status().signedIn
           ? 'Notes and handwriting sync to your account. Imported files and folders stay on this device.'

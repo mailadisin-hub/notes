@@ -24,6 +24,33 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.5.6',
+    items: [
+      {
+        icon: 'eraser',
+        title: 'Scribble Something Out',
+        body: 'Scribble back and forth over writing and it goes, along with the '
+          + 'scribble. A scribble on empty paper is just a scribble. Settings '
+          + 'turns it off if it ever catches your handwriting.',
+        tryIt: { label: 'Try It', go: (done) => done('ink') },
+      },
+      {
+        icon: 'circle',
+        title: 'Hold for a Neat Shape',
+        body: 'Draw a circle, a box, a triangle or a line and hold the pen still '
+          + 'at the end without lifting. It is redrawn properly. Carry on drawing '
+          + 'instead and you keep what you drew.',
+      },
+      {
+        icon: 'lines',
+        title: 'A Ruler',
+        body: 'The ruler button lays a straight-edge on the page. Drag its middle '
+          + 'to move it, either end to turn it, and draw along the top edge for a '
+          + 'line that comes out straight however badly you draw it.',
+      },
+    ],
+  },
+  {
     version: '0.5.5',
     items: [
       {
