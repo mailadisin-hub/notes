@@ -415,6 +415,7 @@ export function sharedPageScreen(boardId) {
     paper: () => page.paper,
     fingerDraws: () => !!store.settings.fingerDraws,
     onChange: () => sendChanges(),
+    onDrawing: (stroke) => sendLive(stroke),
     onHistory: () => chrome.sync(),
     onView: (v) => chrome.setView(v),
     imageFor: async (im) => {
@@ -488,6 +489,64 @@ export function sharedPageScreen(boardId) {
       view.refresh();
       frameOnce();
     }
+  }
+
+  /* --------------------------------------------------- live writing */
+
+  /* Strokes are sent again while they are still being drawn, so the others see
+     a pen moving rather than a line appearing once it is finished. */
+  const LIVE_EVERY_MS = 90;
+  /* Someone who closed the lid mid-stroke leaves half a line behind; after this
+     long without an update it is treated as gone. */
+  const LIVE_STALE_MS = 6000;
+
+  let liveTimer = null;
+  let livePending = null;
+  let liveShowing = false;
+  let liveAllowed = true;
+
+  function sendLive(stroke) {
+    if (!session || !liveAllowed) return;
+    if (!stroke) {
+      /* The finished stroke is on its way through the ordinary channel, so the
+         half-drawn copy goes now - otherwise it hangs there twice over. */
+      clearTimeout(liveTimer);
+      liveTimer = null;
+      livePending = null;
+      if (liveShowing) {
+        liveShowing = false;
+        session.live({ [`live/${me.uid}`]: null });
+      }
+      return;
+    }
+    livePending = stroke;
+    if (liveTimer) return;
+    liveTimer = setTimeout(() => {
+      liveTimer = null;
+      const s = livePending;
+      livePending = null;
+      if (!session || !s || s.pts.length < 3) return;
+      liveShowing = true;
+      session.live({ [`live/${me.uid}`]: encodeStroke(s, me.uid) })
+        .then((ok) => {
+          /* The database has no rule for this yet: stop asking, and leave the
+             page working exactly as it did before. */
+          if (!ok) liveAllowed = false;
+        });
+    }, LIVE_EVERY_MS);
+  }
+
+  function applyLive() {
+    const raw = board().live || {};
+    const now = Date.now() + serverOffset;
+    const ghosts = [];
+    for (const [uid, r] of Object.entries(raw)) {
+      if (uid === me.uid || !r) continue;
+      if (typeof r.at === 'number' && now - r.at > LIVE_STALE_MS) continue;
+      const g = decodeStroke(`live-${uid}`, r);
+      if (g) ghosts.push(g);
+    }
+    view.setGhosts(ghosts);
   }
 
   /* The first writing to arrive decides where the board opens, so a page from
@@ -742,6 +801,7 @@ export function sharedPageScreen(boardId) {
         applyStrokes();
         applyPictures();
         applyPeople();
+        applyLive();
         // Anything drawn while the connection was down goes up now.
         sendChanges();
       },
@@ -750,6 +810,7 @@ export function sharedPageScreen(boardId) {
         if (sections.has('images')) applyPictures();
         if (sections.has('meta')) applyMeta();
         if (sections.has('members') || sections.has('presence')) applyPeople();
+        if (sections.has('live')) applyLive();
       },
       status: (online, err) => {
         people.classList.toggle('offline', !online);
@@ -786,6 +847,9 @@ export function sharedPageScreen(boardId) {
     clearInterval(peopleTimer);
     document.removeEventListener('keydown', onKey);
     if (stopPresence) stopPresence();
+    // Leaving mid-stroke would leave half a line hanging on everyone's page.
+    clearTimeout(liveTimer);
+    if (session && liveShowing) session.live({ [`live/${me.uid}`]: null });
     if (session) session.close();
     view.destroy();
     chrome.destroy();

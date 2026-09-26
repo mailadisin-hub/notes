@@ -17,6 +17,7 @@ import { ensurePasscode, removePasscode, forgotPasscode } from './lock.js';
 import * as sync from '../lib/sync.js';
 import { signInFlow as signIn, nameFlow, changePasswordFlow } from './account.js';
 import { applyTheme, applyTextScale } from '../lib/theme.js';
+import { showWhatsNew } from './whatsnew.js';
 
 export function settingsScreen() {
   const screen = el('section', { class: 'screen grouped' });
@@ -248,10 +249,20 @@ export function settingsScreen() {
 
     const statsCard = el('div', { class: 'group-card' });
     statsCard.append(row('Notes', { value: '...', trail: false }));
+    statsCard.append(row("What's New", {
+      iconName: 'info',
+      onPick: () => showWhatsNew({
+        force: true,
+        onTry: (where) => {
+          if (where === 'shared') import('./shared.js').then((m) => push(m.sharedListScreen()));
+          else if (where === 'ink') import('./inknote.js').then((m) => push(m.inkNoteScreen(null, 'Settings', {})));
+        },
+      }),
+    }));
     body.append(el('div', { class: 'group' }, statsCard));
 
     body.append(el('p', { class: 'settings-footnote' },
-      el('span', { text: 'Notes 0.5.3' }),
+      el('span', { text: 'Notes 0.5.4' }),
       el('span', {
         text: sync.status().signedIn
           ? 'Notes and handwriting sync to your account. Imported files and folders stay on this device.'

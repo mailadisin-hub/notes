@@ -1527,3 +1527,50 @@ img.att {
 /* Where text is meant to be selected - typing, reading - iOS keeps its usual
    long-press menu (Copy, Look Up, Paste). */
 [contenteditable], input, textarea, .md { -webkit-touch-callout: default; }
+
+/* ---------------------------------------------------------- what's new */
+/* A card in the middle rather than a sheet from the bottom: this is read
+   before anything else happens, not picked from. */
+.whatsnew {
+  position: fixed; z-index: 61;
+  left: 50%; top: 50%;
+  width: min(420px, calc(100vw - 32px));
+  max-height: min(78vh, 640px);
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 26px 22px calc(18px + var(--sab));
+  background: var(--sheet-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 20px;
+  box-shadow: var(--sheet-shadow);
+  transform: translate(-50%, -50%) scale(0.92);
+  opacity: 0;
+  transition: transform var(--dur-slow) var(--ease-ios), opacity var(--dur) ease;
+}
+.whatsnew.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.whatsnew::-webkit-scrollbar { width: 0; }
+.whatsnew-head { text-align: center; margin-bottom: 22px; }
+.whatsnew-head h2 { font-size: 27px; font-weight: 700; letter-spacing: -0.6px; }
+.whatsnew-head p { font-size: 14px; color: var(--label-2); margin-top: 4px; }
+.whatsnew-list { display: flex; flex-direction: column; gap: 22px; }
+.whatsnew-item { display: flex; gap: 15px; align-items: flex-start; }
+.whatsnew-icon {
+  flex: none; width: 30px; height: 30px; margin-top: 1px;
+  display: grid; place-items: center; color: var(--accent);
+}
+.whatsnew-icon .ic { width: 27px; height: 27px; }
+.whatsnew-text { min-width: 0; }
+.whatsnew-text h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.2px; }
+.whatsnew-text p { font-size: 14px; line-height: 1.45; color: var(--label-2); margin-top: 3px; }
+.whatsnew-try {
+  margin-top: 10px; padding: 8px 15px;
+  font-size: 14px; font-weight: 600; color: #1c1c1e;
+  background: var(--accent); border: 0; border-radius: 9px;
+}
+.whatsnew-done {
+  width: 100%; margin-top: 26px; padding: 14px;
+  font-size: 17px; font-weight: 600; color: var(--accent);
+  background: var(--fill); border: 0; border-radius: 13px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .whatsnew { transition: opacity var(--dur) ease; transform: translate(-50%, -50%); }
+}

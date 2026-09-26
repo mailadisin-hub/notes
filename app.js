@@ -9,8 +9,9 @@ import * as sync from './lib/sync.js';
 import { clearSessionKey } from './lib/crypto.js';
 import { applyTheme, applyTextScale, watchSystemTheme } from './lib/theme.js';
 import { setHapticsEnabled } from './lib/haptics.js';
-import { mount, reset } from './lib/router.js';
+import { mount, reset, push, openDetail } from './lib/router.js';
 import { foldersScreen } from './views/folders.js';
+import { showWhatsNew } from './views/whatsnew.js';
 
 load();
 applyTheme();
@@ -52,6 +53,18 @@ if (!store.notes.length && !seeded) {
 }
 
 reset(foldersScreen());
+
+/* First launch after an update: say what is new, and offer to open it. A
+   sideloaded app has no release notes anywhere else. */
+showWhatsNew({
+  onTry: (where) => {
+    if (where === 'shared') {
+      import('./views/shared.js').then((m) => push(m.sharedListScreen()));
+    } else if (where === 'ink') {
+      import('./views/inknote.js').then((m) => openDetail(m.inkNoteScreen(null, 'Notes', {})));
+    }
+  },
+});
 
 /* An invite link to a shared page opens the web app at #join=<board>.<code> -
    fresh, or in a tab that already had the app open. The hash is cleared at
