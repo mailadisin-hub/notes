@@ -24,6 +24,18 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.5.5',
+    items: [
+      {
+        icon: 'folder-stack',
+        title: 'Notes Open Full Screen',
+        body: 'On a tablet or a computer an open note takes the whole window now, '
+          + 'instead of sitting in a column beside the folder list. Split View in '
+          + 'Settings puts the list back if you ever want it.',
+      },
+    ],
+  },
+  {
     version: '0.5.4',
     items: [
       {

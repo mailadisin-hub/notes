@@ -9,7 +9,7 @@ import * as sync from './lib/sync.js';
 import { clearSessionKey } from './lib/crypto.js';
 import { applyTheme, applyTextScale, watchSystemTheme } from './lib/theme.js';
 import { setHapticsEnabled } from './lib/haptics.js';
-import { mount, reset, push, openDetail } from './lib/router.js';
+import { mount, reset, push, openDetail, setSplitView } from './lib/router.js';
 import { foldersScreen } from './views/folders.js';
 import { showWhatsNew } from './views/whatsnew.js';
 
@@ -19,6 +19,7 @@ applyTextScale();
 watchSystemTheme();
 setHapticsEnabled(store.settings.haptics !== false);
 
+setSplitView(store.settings.splitView === true);
 mount(document.getElementById('stack'));
 history.replaceState({ depth: 1 }, '');
 

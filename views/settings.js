@@ -9,7 +9,7 @@ import {
 import {
   el, icon, pressable, navBar, backButton, bindScrollTitle, alert2, actionSheet, sliderSheet, toast,
 } from '../lib/ui.js';
-import { pop, push } from '../lib/router.js';
+import { pop, push, setSplitView } from '../lib/router.js';
 import { setHapticsEnabled, haptic } from '../lib/haptics.js';
 import { listAttachments } from '../lib/attachments.js';
 import { attachmentsScreen } from './attachments.js';
@@ -215,7 +215,10 @@ export function settingsScreen() {
         row('Text Size', { iconName: 'text-size', value: textLabel(), onPick: pickTextSize }),
         toggleRow('Haptics', 'haptic',
           () => store.settings.haptics !== false,
-          (v) => { store.settings.haptics = v; setHapticsEnabled(v); }))));
+          (v) => { store.settings.haptics = v; setHapticsEnabled(v); }),
+        toggleRow('Split View', 'folder-stack',
+          () => store.settings.splitView === true,
+          (v) => { store.settings.splitView = v; setSplitView(v); }))));
 
     body.append(el('div', { class: 'group' },
       el('div', { class: 'group-label', text: 'Privacy' }),
@@ -262,7 +265,7 @@ export function settingsScreen() {
     body.append(el('div', { class: 'group' }, statsCard));
 
     body.append(el('p', { class: 'settings-footnote' },
-      el('span', { text: 'Notes 0.5.4' }),
+      el('span', { text: 'Notes 0.5.5' }),
       el('span', {
         text: sync.status().signedIn
           ? 'Notes and handwriting sync to your account. Imported files and folders stay on this device.'
