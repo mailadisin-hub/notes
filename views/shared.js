@@ -12,7 +12,7 @@
 
 import {
   el, icon, pressable, longPress, navBar, backButton, navIconButton, bindScrollTitle,
-  actionSheet, alert2, contextMenu, overlay, toast,
+  actionSheet, alert2, contextMenu, overlay, toast, progressAlert,
 } from '../lib/ui.js';
 import { push, pop, openDetail } from '../lib/router.js';
 import { store, save } from '../lib/store.js';
@@ -24,7 +24,7 @@ import * as shared from '../lib/shared.js';
 import { inkChrome } from './inkchrome.js';
 import { isDark } from './inknote.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
-import { pickPicture, placePicture, sharePage } from './pictures.js';
+import { pickPicture, placePicture, sharePage, pickPdf, pdfPagePlacement } from './pictures.js';
 import { signInFlow, nameFlow } from './account.js';
 
 const PAGE_WIDTH = 800;
@@ -723,6 +723,51 @@ export function sharedPageScreen(boardId) {
     });
   }
 
+  /* The same as adding pictures, because that is what the pages are once they
+     are rendered - so they reach everyone else by the path pictures already
+     take. A page too big to send is skipped rather than failing the lot: one
+     missing page out of forty is recoverable, a broken import is not. */
+  function addPdf() {
+    if (!session || !session.board) {
+      toast('Still connecting');
+      return;
+    }
+    let busy = null;
+    let flow = null;
+    let skipped = 0;
+    pickPdf(async (page) => {
+      const data = await blobToBase64(page.blob);
+      if (data.length > MAX_PICTURE_CHARS) {
+        skipped += 1;
+        return;
+      }
+      const id = shared.randomId(12);
+      pictureData.set(id, data);
+      const at = pdfPagePlacement(view, page, flow);
+      view.addImage(0, { id, x: at.x, y: at.y, w: at.w, h: at.h });
+      if (page.number === 1) view.fill({ x: at.x, y: at.y, w: at.w, h: at.h }, 0);
+      flow = { w: at.w, x: at.x, y: at.next };
+    }, {
+      onProgress: (n, total) => {
+        if (!busy) busy = progressAlert('Adding the PDF', '');
+        busy.say(`Page ${n} of ${total}...`);
+      },
+      onDone: (count, name, total) => {
+        if (busy) busy.close();
+        const added = count - skipped;
+        toast(skipped
+          ? `${added} of ${count} pages added - ${skipped} were too big to share`
+          : total > count
+            ? `First ${added} of ${total} pages added for everyone`
+            : `${added} page${added === 1 ? '' : 's'} added for everyone`);
+      },
+      onFail: (err) => {
+        if (busy) busy.close();
+        alert2('Could Not Add That PDF', String((err && err.message) || err), [{ label: 'OK' }]);
+      },
+    });
+  }
+
   function openInvite() {
     const b = board();
     if (!b.invite) {
@@ -751,6 +796,7 @@ export function sharedPageScreen(boardId) {
       },
       { label: 'Find My Writing', icon: 'search', onPick: () => view.recentre() },
       { label: 'Add a Picture', icon: 'photo', onPick: addPicture },
+      { label: 'Add a PDF', icon: 'doc', sub: 'Everyone gets the pages to write on', onPick: addPdf },
       {
         label: store.settings.fingerDraws ? 'Finger Scrolls' : 'Finger Draws',
         icon: 'markup',

@@ -18,7 +18,7 @@ import { canRead, modelReady, prepareModel, readPage, readingOf } from '../lib/h
 import { inkView } from '../lib/inkview.js';
 import { inkChrome } from './inkchrome.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
-import { pickPicture, placePicture, sharePage, pagePdf } from './pictures.js';
+import { pickPicture, placePicture, sharePage, pagePdf, pickPdf, pdfPagePlacement } from './pictures.js';
 import { putAttachment, getAttachment } from '../lib/attachments.js';
 
 export const PAGE_WIDTH = 800;
@@ -305,6 +305,41 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     }
   }
 
+  /* A PDF becomes its pages, laid down the board as pictures. They are
+     ordinary pictures from then on - written over, moved, erased, synced and
+     exported by everything that already handles pictures, with no second kind
+     of thing for the rest of the app to know about. */
+  function addPdf() {
+    let busy = null;
+    let flow = null;
+    pickPdf(async (page) => {
+      const att = await putAttachment(page.blob, {
+        kind: 'pdfpage', noteId: note.id, width: page.width, height: page.height,
+      });
+      const at = pdfPagePlacement(view, page, flow);
+      view.addImage(0, { id: att, att, x: at.x, y: at.y, w: at.w, h: at.h });
+      /* The first page fills the screen, so a document dropped on a board is
+         something you are looking at rather than something you have to find. */
+      if (page.number === 1) view.fill({ x: at.x, y: at.y, w: at.w, h: at.h }, 0);
+      flow = { w: at.w, x: at.x, y: at.next };
+    }, {
+      onProgress: (n, total) => {
+        if (!busy) busy = progressAlert('Adding the PDF', '');
+        busy.say(`Page ${n} of ${total}...`);
+      },
+      onDone: (count, name, total) => {
+        if (busy) busy.close();
+        toast(total > count
+          ? `First ${count} of ${total} pages added`
+          : `${count} page${count === 1 ? '' : 's'} added - write straight on them`);
+      },
+      onFail: (err) => {
+        if (busy) busy.close();
+        alert2('Could Not Add That PDF', String((err && err.message) || err), [{ label: 'OK' }]);
+      },
+    });
+  }
+
   function openMenu() {
     actionSheet(null, [
       { label: 'Background', icon: 'grid', sub: backgroundLabel(page.paper, INK_NAMES), onPick: openPaper },
@@ -316,6 +351,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
       },
       page.board ? { label: 'Find My Writing', icon: 'search', onPick: () => view.recentre() } : null,
       { label: 'Add a Picture', icon: 'photo', onPick: addPicture },
+      { label: 'Add a PDF', icon: 'doc', sub: 'Each page goes on the board to write on', onPick: addPdf },
       {
         label: store.settings.fingerDraws ? 'Finger Scrolls' : 'Finger Draws',
         icon: 'markup',

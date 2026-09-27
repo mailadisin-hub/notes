@@ -1403,8 +1403,11 @@ img.att {
 .ink-sel-btn {
   padding: 7px 16px; border-radius: 999px;
   font-size: 15px; font-weight: 600; letter-spacing: -0.2px;
-  color: var(--red);
+  /* The bar has more than one button on it now, so only the one that destroys
+     something is coloured like it. */
+  color: var(--label);
 }
+.ink-sel-btn.destructive { color: var(--red); }
 .ink-sel-btn:active { background: var(--fill-press); }
 
 /* ===================== Shared pages ====================================== */

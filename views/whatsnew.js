@@ -24,6 +24,27 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.3',
+    items: [
+      {
+        icon: 'doc',
+        title: 'Put a PDF on a Whiteboard',
+        body: 'Add a PDF from the menu of a handwritten page and every page of it '
+          + 'goes on the board, one under the next, ready to write straight on. '
+          + 'They behave like any other picture from then on - move them, rub out '
+          + 'what you wrote, export the lot.',
+        tryIt: { label: 'Open a Page', go: (done) => done('ink') },
+      },
+      {
+        icon: 'people',
+        title: 'And on Shared Boards',
+        body: 'The same on a shared page: everyone gets the pages, and everyone '
+          + 'can annotate them at once. Tap a page and Fill Screen to zoom to it '
+          + 'before you write.',
+      },
+    ],
+  },
+  {
     version: '0.7.2',
     items: [
       {
