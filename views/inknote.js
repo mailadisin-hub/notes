@@ -8,12 +8,13 @@
  * Pictures on the page are attachments, placed by position and size.
  */
 
-import { el, actionSheet, toast, alert2 } from '../lib/ui.js';
+import { el, actionSheet, toast, alert2, progressAlert } from '../lib/ui.js';
 import { pop } from '../lib/router.js';
 import { store, save, newNote, noteById } from '../lib/store.js';
 import { haptic } from '../lib/haptics.js';
 import { getInk, putInk } from '../lib/library.js';
 import { boxOf, BOARD, BOARD_START_TOP } from '../lib/ink.js';
+import { canRead, modelReady, prepareModel, readPage, readingOf } from '../lib/handwriting.js';
 import { inkView } from '../lib/inkview.js';
 import { inkChrome } from './inkchrome.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
@@ -130,6 +131,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     page.paper = ink.paper || store.settings.defaultPaper || 'plain';
     if (ink.board) shapePage(true);
     loaded = true;
+    if (canRead()) readingOf(note.id).then((r) => { lastReading = r; }).catch(() => {});
     view.layout();
     chrome.sync();
   }).catch(() => {
@@ -256,6 +258,44 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     });
   }
 
+  /* ------------------------------------------------- reading the writing */
+
+  let lastReading = null;
+
+  function readingLabel() {
+    if (!lastReading) return 'Read the words so search can find them';
+    if (!lastReading.text) return 'Nothing readable found last time';
+    const words = lastReading.text.split(/\s+/).filter(Boolean).length;
+    return `${words} word${words === 1 ? '' : 's'} read - tap to read it again`;
+  }
+
+  async function readHandwriting() {
+    if (!page.strokes.length) return toast('There is nothing written here yet');
+    const busy = progressAlert('Reading Your Writing', 'Getting ready...');
+    try {
+      if (!(await modelReady())) {
+        busy.say('Downloading the handwriting model. This happens once, on wifi.');
+        await prepareModel();
+      }
+      const reading = await readPage(note.id, page.strokes, {
+        onProgress: (line, total) => busy.say(`Reading line ${line} of ${total}...`),
+      });
+      busy.close();
+      lastReading = reading;
+      if (!reading) return toast('This device cannot read handwriting');
+      const words = (reading.text || '').split(/\s+/).filter(Boolean).length;
+      return alert2(words ? 'Page Read' : 'Nothing Readable',
+        words
+          ? `${words} word${words === 1 ? '' : 's'} across ${reading.lines} line${reading.lines === 1 ? '' : 's'}. `
+            + 'Search can find this page now. The words are kept on this device only.'
+          : 'No words could be made out. Neater writing, or bigger, tends to read better.',
+        [{ label: 'OK' }]);
+    } catch (err) {
+      busy.close();
+      return alert2('Could Not Read It', String((err && err.message) || err), [{ label: 'OK' }]);
+    }
+  }
+
   function openMenu() {
     actionSheet(null, [
       { label: 'Background', icon: 'grid', sub: backgroundLabel(page.paper, INK_NAMES), onPick: openPaper },
@@ -277,6 +317,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
           toast(store.settings.fingerDraws ? 'Your finger draws until a stylus is used' : 'Your finger scrolls');
         },
       },
+      canRead() ? { label: 'Make This Page Searchable', icon: 'search', sub: readingLabel(), onPick: readHandwriting } : null,
       { label: 'Share as Image', icon: 'share', onPick: shareImage },
       {
         label: 'Delete',

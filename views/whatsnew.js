@@ -24,6 +24,27 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.0',
+    items: [
+      {
+        icon: 'search',
+        title: 'Search Your Handwriting',
+        body: 'In a handwritten page, the menu now offers Make This Page '
+          + 'Searchable. It reads the writing line by line, on the phone, and '
+          + 'search finds the page by what you actually wrote. Nothing is sent '
+          + 'anywhere - the reading happens on the device and stays there.',
+        tryIt: { label: 'Open a Page', go: (done) => done('ink') },
+      },
+      {
+        icon: 'download',
+        title: 'One Download, Then Offline',
+        body: 'The first page you read fetches a language model, about twenty '
+          + 'megabytes, over wifi only. After that it works with no connection '
+          + 'at all. Android only: the web version cannot do this.',
+      },
+    ],
+  },
+  {
     version: '0.6.3',
     items: [
       {
