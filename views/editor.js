@@ -588,6 +588,21 @@ export function editorScreen(noteId, backLabel, opts = {}) {
     return n ? `${n} card${n === 1 ? '' : 's'} in this note` : 'None yet - see how to write one';
   }
 
+  async function exportPdf() {
+    flush();
+    try {
+      const [{ textPdf, blocksFromHtml }, { saveBlob, safeName }] = await Promise.all([
+        import('../lib/pdf.js'), import('./pictures.js'),
+      ]);
+      const title = displayTitle(note);
+      const blob = textPdf(blocksFromHtml(note.html, title), { title });
+      saveBlob(blob, `${safeName(title)}.pdf`);
+      toast('PDF saved');
+    } catch (err) {
+      toast(String((err && err.message) || err));
+    }
+  }
+
   function openHistory() {
     flush();
     import('./history.js').then((m) => push(m.historyScreen(note.id, 'Note')));
@@ -611,6 +626,7 @@ export function editorScreen(noteId, backLabel, opts = {}) {
       { label: 'Earlier Versions', icon: 'restore', onPick: openHistory },
       { label: 'Note Info', icon: 'info', onPick: openInfo },
       { label: 'Export as Text', icon: 'download', onPick: () => exportNoteFile(note) },
+      { label: 'Export as PDF', icon: 'doc', onPick: exportPdf },
       { label: 'Delete', icon: 'trash', destructive: true, onPick: deleteNote },
     ]);
   }

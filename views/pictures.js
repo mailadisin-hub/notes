@@ -75,3 +75,31 @@ export async function sharePage(view, title) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
+
+/**
+ * A handwritten page as a PDF - the form work is handed in as, and the one
+ * every device can open without being asked to trust a picture.
+ */
+export async function pagePdf(view, title) {
+  await view.whenImagesReady();
+  const canvas = view.renderPage(0, 2);
+  const jpeg = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.88));
+  const bytes = new Uint8Array(await jpeg.arrayBuffer());
+  const { imagePdf } = await import('../lib/pdf.js');
+  const blob = imagePdf([{ bytes, width: canvas.width, height: canvas.height }]);
+  saveBlob(blob, `${safeName(title)}.pdf`);
+}
+
+/** The name a saved file gets, with the characters a filesystem objects to gone. */
+export function safeName(title) {
+  return String(title || '').replace(/[\/:*?"<>|]+/g, ' ').trim().slice(0, 60) || 'Note';
+}
+
+/** Hands a file to the browser to save. */
+export function saveBlob(blob, name) {
+  const a = el('a', { href: URL.createObjectURL(blob), download: name });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}

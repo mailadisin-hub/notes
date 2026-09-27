@@ -24,6 +24,19 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.1',
+    items: [
+      {
+        icon: 'doc',
+        title: 'Export as PDF',
+        body: 'Any note can be saved as a PDF, from its menu. A typed note '
+          + 'becomes real selectable text rather than a picture of itself, so it '
+          + 'stays small and can be searched; a handwritten page becomes a page '
+          + 'of your writing, ready to hand in or send.',
+      },
+    ],
+  },
+  {
     version: '0.7.0',
     items: [
       {

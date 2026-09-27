@@ -18,7 +18,7 @@ import { canRead, modelReady, prepareModel, readPage, readingOf } from '../lib/h
 import { inkView } from '../lib/inkview.js';
 import { inkChrome } from './inkchrome.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
-import { pickPicture, placePicture, sharePage } from './pictures.js';
+import { pickPicture, placePicture, sharePage, pagePdf } from './pictures.js';
 import { putAttachment, getAttachment } from '../lib/attachments.js';
 
 export const PAGE_WIDTH = 800;
@@ -296,6 +296,15 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     }
   }
 
+  async function exportPdf() {
+    try {
+      await pagePdf(view, note.title || 'Handwritten note');
+      toast('PDF saved');
+    } catch (err) {
+      toast(String((err && err.message) || err));
+    }
+  }
+
   function openMenu() {
     actionSheet(null, [
       { label: 'Background', icon: 'grid', sub: backgroundLabel(page.paper, INK_NAMES), onPick: openPaper },
@@ -319,6 +328,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
       },
       canRead() ? { label: 'Make This Page Searchable', icon: 'search', sub: readingLabel(), onPick: readHandwriting } : null,
       { label: 'Share as Image', icon: 'share', onPick: shareImage },
+      { label: 'Export as PDF', icon: 'download', onPick: exportPdf },
       {
         label: 'Delete',
         icon: 'trash',
