@@ -321,7 +321,7 @@ export function settingsScreen() {
     body.append(el('div', { class: 'group' }, statsCard));
 
     body.append(el('p', { class: 'settings-footnote' },
-      el('span', { text: 'Notes 0.7.1' }),
+      el('span', { text: 'Notes 0.7.2' }),
       el('span', {
         text: sync.status().signedIn
           ? 'Notes and handwriting sync to your account. Imported files and folders stay on this device.'

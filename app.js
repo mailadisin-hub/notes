@@ -4,7 +4,7 @@
  * empty shell.
  */
 
-import { store, load, save, newNote, relockAll } from './lib/store.js';
+import { store, load, save, relockAll } from './lib/store.js';
 import * as sync from './lib/sync.js';
 import { clearSessionKey } from './lib/crypto.js';
 import { applyTheme, applyTextScale, watchSystemTheme } from './lib/theme.js';
@@ -12,6 +12,7 @@ import { setHapticsEnabled } from './lib/haptics.js';
 import { mount, reset, push, openDetail, setSplitView } from './lib/router.js';
 import { foldersScreen } from './views/folders.js';
 import { showWhatsNew } from './views/whatsnew.js';
+import { showWelcome, welcomeNote } from './views/welcome.js';
 
 /* Reading the notes is the one thing that has to finish before anything is
    drawn; it comes from a database now, so the rest of the boot waits for it. */
@@ -33,33 +34,24 @@ try {
   /* Storage blocked; skip seeding rather than seeding on every launch. */
 }
 
+/* A genuinely new library starts with one note, written to show what the app
+   does rather than to describe it - the two colons that make a revision card
+   are a thing you have to see once. */
 if (!store.notes.length && !seeded) {
   try { localStorage.setItem(SEED_KEY, '1'); } catch { /* ignore */ }
-  const note = newNote('default');
-  note.html = [
-    '<h1>Welcome</h1>',
-    '<div><br></div>',
-    '<div>Swipe a note left to lock, move or delete it. Swipe right to pin.</div>',
-    '<div>Press and hold a note for the full menu.</div>',
-    '<div><br></div>',
-    '<div class="checkitem" data-done="0"><span class="box" contenteditable="false">'
-      + '<svg viewBox="0 0 24 24" class="ic"><use href="#i-check"></use></svg></span>'
-      + '<span class="ct">Tap a circle to tick it off</span></div>',
-    '<div class="checkitem" data-done="0"><span class="box" contenteditable="false">'
-      + '<svg viewBox="0 0 24 24" class="ic"><use href="#i-check"></use></svg></span>'
-      + '<span class="ct">Aa sets Title, Heading, bold and highlight</span></div>',
-    '<div><br></div>',
-    '<div>Type a hashtag - like #ideas - and it turns into a tag on the Folders screen.</div>',
-  ].join('');
-  note.updatedAt = Date.now();
+  welcomeNote('default');
   save();
 }
 
 reset(foldersScreen());
 
+/* A first run gets the four panels; every run after an update gets what is
+   new. Never both at once - the panels already say all of it. */
+const welcomed = showWelcome();
+
 /* First launch after an update: say what is new, and offer to open it. A
    sideloaded app has no release notes anywhere else. */
-showWhatsNew({
+if (!welcomed) showWhatsNew({
   onTry: (where) => {
     if (where === 'shared') {
       import('./views/shared.js').then((m) => push(m.sharedListScreen()));

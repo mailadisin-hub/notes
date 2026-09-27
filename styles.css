@@ -1715,3 +1715,43 @@ img.att {
   margin-top: 3px; font-size: calc(14px * var(--text-scale)); line-height: 1.4; color: var(--label-2);
 }
 .group-foot { padding: 8px 18px 0; font-size: 12px; color: var(--label-2); line-height: 1.4; }
+
+/* ------------------------------------------------------------ first run */
+.welcome {
+  position: fixed; z-index: 61; left: 50%; top: 50%;
+  width: min(400px, calc(100vw - 32px));
+  transform: translate(-50%, -50%) scale(0.94); opacity: 0;
+  transition: transform var(--dur-slow) var(--ease-ios), opacity var(--dur) ease;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 34px 26px calc(20px + var(--sab));
+  background: var(--sheet-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 22px; box-shadow: var(--sheet-shadow); text-align: center;
+}
+.welcome.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.welcome-art {
+  width: 76px; height: 76px; border-radius: 22px; margin-bottom: 20px;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--accent-solid) 16%, transparent);
+}
+.welcome-art .ic { width: 38px; height: 38px; color: var(--accent); }
+.welcome-text { min-height: 150px; }
+.welcome-text h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+.welcome-text p { margin-top: 8px; font-size: 15px; line-height: 1.5; color: var(--label-2); }
+.welcome-dots { display: flex; gap: 7px; margin: 16px 0 18px; }
+.welcome-dot {
+  width: 7px; height: 7px; border-radius: 99px;
+  /* The fill colour is almost the card colour on a dark page, which leaves the
+     dots you have not reached invisible and the row looking like one dot. */
+  background: color-mix(in srgb, var(--label-2) 45%, transparent);
+  transition: background var(--dur) ease;
+}
+.welcome-dot.on { background: var(--accent-solid); }
+.welcome-next {
+  width: 100%; padding: 15px; border: 0; border-radius: 14px;
+  background: var(--accent-solid); color: #1c1c1e; font-size: 17px; font-weight: 600;
+}
+.welcome-skip { margin-top: 6px; padding: 10px; border: 0; background: none; color: var(--label-2); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) {
+  .welcome { transition: opacity var(--dur) ease; transform: translate(-50%, -50%); }
+}

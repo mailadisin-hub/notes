@@ -24,6 +24,18 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.2',
+    items: [
+      {
+        icon: 'info',
+        title: 'It Explains Itself Now',
+        body: 'A new device gets four panels saying what is here, and a Start Here '
+          + 'note that shows how a line of writing becomes a revision card rather '
+          + 'than just telling you. Nothing changes for a device you already use.',
+      },
+    ],
+  },
+  {
     version: '0.7.1',
     items: [
       {
