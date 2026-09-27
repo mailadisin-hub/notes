@@ -20,14 +20,31 @@
 import { el, icon, pressable } from '../lib/ui.js';
 import { haptic } from '../lib/haptics.js';
 import { store, save } from '../lib/store.js';
-import { INK, INK_COLOURS, HIGHLIGHT_COLOURS, SIZE_STEPS } from '../lib/ink.js';
+import { INK, INK_COLOURS, HIGHLIGHT_COLOURS, SIZE_STEPS, TOOLS, PEN_KNOBS, penStyle } from '../lib/ink.js';
 
-const TOOLS = [
+const BUTTONS = [
   { id: 'pen', icon: 'pen', label: 'Pen' },
   { id: 'pencil', icon: 'pencil', label: 'Pencil' },
   { id: 'highlighter', icon: 'marker', label: 'Highlighter' },
   { id: 'eraser', icon: 'eraser', label: 'Eraser' },
 ];
+
+/**
+ * The nibs behind each button. One button, several pens: the pen button writes
+ * with whichever nib was last chosen under it, so the toolbar stays four wide
+ * however many pens there are.
+ */
+const NIBS = {
+  pen: ['pen', 'fountain', 'ballpoint', 'fineliner', 'brush'],
+  pencil: ['pencil'],
+  highlighter: ['highlighter', 'marker'],
+};
+
+/** The nib in use for a button, and the settings it has been given. */
+function nibOf(group) {
+  const chosen = (store.settings.nibs || {})[group];
+  return NIBS[group].includes(chosen) ? chosen : group;
+}
 
 function button(name, label, onPick, extraClass = '') {
   const b = el('button', { class: `pill-btn ${extraClass}`, 'aria-label': label, title: label }, icon(name));
@@ -74,7 +91,7 @@ export function inkChrome(view, opts) {
   pressable(colourDot, () => togglePopover());
 
   const tools = el('div', { class: 'pill pill-tools' });
-  for (const t of TOOLS) {
+  for (const t of BUTTONS) {
     const b = el('button', { class: 'pill-btn', 'aria-label': t.label, title: t.label }, icon(t.icon));
     pressable(b, () => pick(t.id));
     toolBtns.set(t.id, b);
@@ -132,8 +149,31 @@ export function inkChrome(view, opts) {
       popover.append(el('div', { class: 'pop-hint', text: 'Erases whole strokes. The pen\'s side button erases too.' }));
       return;
     }
-    const list = current === 'highlighter' ? HIGHLIGHT_COLOURS : INK_COLOURS;
-    const selected = current === 'highlighter' ? view.state.highlight : view.state.colour;
+    const nib = nibOf(current);
+    const style = penStyle(nib, store.settings.penTweaks);
+
+    /* Which nib this button writes with. One row, only when there is a choice
+       to make. */
+    if (NIBS[current].length > 1) {
+      const nibs = el('div', { class: 'pop-row pop-nibs' });
+      for (const id of NIBS[current]) {
+        const b = el('button', { class: `pop-nib${id === nib ? ' on' : ''}`, type: 'button' },
+          el('span', { class: 'pop-nib-line', style: `--w:${Math.min(11, penStyle(id, store.settings.penTweaks).size)}px` }),
+          el('span', { class: 'pop-nib-name', text: TOOLS[id].label }));
+        pressable(b, () => {
+          store.settings.nibs = { ...(store.settings.nibs || {}), [current]: id };
+          save();
+          applyTool();
+          haptic('select');
+          renderPopover();
+        });
+        nibs.append(b);
+      }
+      popover.append(nibs);
+    }
+
+    const list = style.flat ? HIGHLIGHT_COLOURS : INK_COLOURS;
+    const selected = style.flat ? view.state.highlight : view.state.colour;
     const row = el('div', { class: 'pop-row' });
     for (const c of list) {
       const sw = el('button', {
@@ -163,6 +203,53 @@ export function inkChrome(view, opts) {
       sizeRow.append(b);
     });
     popover.append(row, sizeRow);
+
+    /* The pen itself. Every change is saved against that nib, so each pen keeps
+       its own feel, and the ink already on the page is left as it was. */
+    const knobs = el('div', { class: 'pop-knobs' });
+    for (const knob of PEN_KNOBS) {
+      if (style.flat && (knob.key === 'pressure' || knob.key === 'taper')) continue;
+      const value = style[knob.key] ?? 0;
+      const out = el('span', { class: 'pop-knob-value', text: knob.percent ? `${Math.round(value * 100)}%` : value.toFixed(1) });
+      const input = el('input', {
+        type: 'range', class: 'pop-knob-range',
+        min: knob.min, max: knob.max, step: knob.step, value,
+        'aria-label': `${TOOLS[nib].label} ${knob.label}`,
+      });
+      input.addEventListener('input', () => {
+        const v = Number(input.value);
+        out.textContent = knob.percent ? `${Math.round(v * 100)}%` : v.toFixed(1);
+        const tweaks = { ...(store.settings.penTweaks || {}) };
+        tweaks[nib] = { ...(tweaks[nib] || {}), [knob.key]: v };
+        store.settings.penTweaks = tweaks;
+        applyTool();
+      });
+      input.addEventListener('change', () => { save(); haptic('tap'); });
+      knobs.append(el('label', { class: 'pop-knob' },
+        el('span', { class: 'pop-knob-name', text: knob.label }), out, input));
+    }
+
+    const reset = el('button', { class: 'pop-reset', type: 'button', text: `Reset ${TOOLS[nib].label}` });
+    pressable(reset, () => {
+      const tweaks = { ...(store.settings.penTweaks || {}) };
+      delete tweaks[nib];
+      store.settings.penTweaks = tweaks;
+      save();
+      applyTool();
+      haptic('toggle');
+      renderPopover();
+    });
+    knobs.append(reset);
+    popover.append(knobs);
+  }
+
+  /* Tells the view which pen to write with, and how it has been set up. */
+  function applyTool() {
+    if (current === 'eraser') return;
+    const nib = nibOf(current);
+    view.setTool(nib, penStyle(nib, store.settings.penTweaks));
+    view.setSizeStep(SIZE_STEPS[sizes[current]]);
+    paint();
   }
 
   /* ---------------------------------------------------------------- state */
@@ -174,10 +261,7 @@ export function inkChrome(view, opts) {
     }
     current = id;
     if (id === 'eraser') view.setMode('erase');
-    else {
-      view.setTool(id);
-      view.setSizeStep(SIZE_STEPS[sizes[id]]);
-    }
+    else applyTool();
     haptic('select');
     paint();
     if (!popover.hidden) renderPopover();
@@ -185,7 +269,8 @@ export function inkChrome(view, opts) {
 
   function paint() {
     for (const [id, b] of toolBtns) b.classList.toggle('on', id === current);
-    const c = current === 'highlighter' ? view.state.highlight : view.state.colour;
+    const flat = current !== 'eraser' && penStyle(nibOf(current), store.settings.penTweaks).flat;
+    const c = flat ? view.state.highlight : view.state.colour;
     colourDot.classList.toggle('ink-default', c === INK);
     colourDot.style.setProperty('--sw', c === INK ? '' : c);
     colourDot.hidden = current === 'eraser';
@@ -205,7 +290,7 @@ export function inkChrome(view, opts) {
   };
   document.addEventListener('pointerdown', closeOnOutside, true);
 
-  paint();
+  applyTool();
 
   return {
     el: root,

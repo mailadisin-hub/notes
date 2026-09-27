@@ -24,6 +24,28 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.5.8',
+    items: [
+      {
+        icon: 'pen',
+        title: 'Eight Pens, and Yours to Change',
+        body: 'Fountain pen, brush, ballpoint and fineliner join the pen, and a '
+          + 'marker joins the highlighter. Tap the pen you are already using to '
+          + 'pick the nib, then set its size, opacity, pressure, taper and '
+          + 'smoothing. Each pen keeps its own settings, and ink already on the '
+          + 'page never changes.',
+        tryIt: { label: 'Try the Pens', go: (done) => done('ink') },
+      },
+      {
+        icon: 'eraser',
+        title: 'Crossing Out Is Fussier Again',
+        body: 'It now wants the pen to have gone over the same writing three '
+          + 'separate times before anything is erased, so a line through a word '
+          + 'stays a line through a word.',
+      },
+    ],
+  },
+  {
     version: '0.5.7',
     items: [
       {

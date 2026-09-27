@@ -1574,3 +1574,33 @@ img.att {
 @media (prefers-reduced-motion: reduce) {
   .whatsnew { transition: opacity var(--dur) ease; transform: translate(-50%, -50%); }
 }
+
+/* ------------------------------------------------------------- pen setup */
+/* Which nib the button writes with, and how that nib behaves. Lives in the
+   same popover as the colours: everything about the pen in one place. */
+.pop-nibs { flex-wrap: wrap; gap: 6px; }
+.pop-nib {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 11px; border: 0; border-radius: 9px;
+  background: var(--fill); color: var(--label);
+  font-size: 13px; letter-spacing: -0.1px;
+}
+.pop-nib.on { background: color-mix(in srgb, var(--accent-solid) 22%, transparent); }
+.pop-nib-line {
+  width: 18px; height: var(--w, 3px); min-height: 2px;
+  border-radius: 99px; background: currentColor;
+}
+.pop-nib-name { white-space: nowrap; }
+.pop-knobs {
+  display: flex; flex-direction: column; gap: 9px;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 0.5px solid var(--separator);
+}
+.pop-knob { display: grid; grid-template-columns: 72px 1fr; grid-template-areas: "name value" "range range"; gap: 2px 8px; }
+.pop-knob-name { grid-area: name; font-size: 12px; color: var(--label-2); }
+.pop-knob-value { grid-area: value; font-size: 12px; color: var(--label-2); text-align: right; font-variant-numeric: tabular-nums; }
+.pop-knob-range { grid-area: range; width: 100%; accent-color: var(--accent-solid); height: 22px; }
+.pop-reset {
+  margin-top: 2px; padding: 9px; border: 0; border-radius: 9px;
+  background: var(--fill); color: var(--accent); font-size: 13px; font-weight: 600;
+}
