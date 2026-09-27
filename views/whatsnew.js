@@ -24,6 +24,26 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.5.9',
+    items: [
+      {
+        icon: 'download',
+        title: 'Back Up Everything',
+        body: 'Settings now saves the lot as a zip: every typed note as Markdown, '
+          + 'your pictures and files as ordinary files, and beside them the data '
+          + 'that puts handwriting back exactly. Open it on any computer with '
+          + 'nothing installed - your notes are not locked inside this app.',
+        tryIt: { label: 'Open Settings', go: (done) => done('settings') },
+      },
+      {
+        icon: 'restore',
+        title: 'Restore Without Losing Anything',
+        body: 'Restoring merges. Nothing already on the device is deleted, and '
+          + 'where something exists in both, whichever you edited last is kept.',
+      },
+    ],
+  },
+  {
     version: '0.5.8',
     items: [
       {

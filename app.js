@@ -63,6 +63,8 @@ showWhatsNew({
       import('./views/shared.js').then((m) => push(m.sharedListScreen()));
     } else if (where === 'ink') {
       import('./views/inknote.js').then((m) => openDetail(m.inkNoteScreen(null, 'Notes', {})));
+    } else if (where === 'settings') {
+      import('./views/settings.js').then((m) => push(m.settingsScreen()));
     }
   },
 });

@@ -7,7 +7,7 @@ import {
   store, save, hasPin, notesIn, TRASH, plainText, purgeNote, allNotes,
 } from '../lib/store.js';
 import {
-  el, icon, pressable, navBar, backButton, bindScrollTitle, alert2, actionSheet, sliderSheet, toast,
+  el, icon, pressable, navBar, backButton, bindScrollTitle, alert2, actionSheet, sliderSheet, toast, progressAlert,
 } from '../lib/ui.js';
 import { pop, push, setSplitView } from '../lib/router.js';
 import { setHapticsEnabled, haptic } from '../lib/haptics.js';
@@ -105,6 +105,53 @@ export function settingsScreen() {
   }
 
   const fmtBytes = (n) => (n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+
+  /* ---------------------------------------------------------- backups */
+
+  /* A backup is the difference between trusting an app with years of notes and
+     hoping. Written as a plain zip so it can be read without this app at all. */
+  async function backUp() {
+    const busy = progressAlert('Backing Up', 'Collecting your notes...');
+    try {
+      const { buildBackup } = await import('../lib/backup.js');
+      const { blob, name, counts } = await buildBackup(busy.say);
+      busy.close();
+      const url = URL.createObjectURL(blob);
+      const a = el('a', { href: url, download: name });
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      toast(`${counts.notes} notes and ${counts.handwritten} handwritten pages saved`);
+    } catch (err) {
+      busy.close();
+      alert2('Could Not Back Up', String((err && err.message) || err), [{ label: 'OK' }]);
+    }
+  }
+
+  function restore() {
+    const input = el('input', { type: 'file', accept: '.zip,application/zip', hidden: true });
+    input.addEventListener('change', async () => {
+      const file = input.files && input.files[0];
+      input.remove();
+      if (!file) return;
+      const busy = progressAlert('Restoring', 'Opening the backup...');
+      try {
+        const { restoreBackup } = await import('../lib/backup.js');
+        const got = await restoreBackup(file, busy.say);
+        busy.close();
+        render();
+        alert2('Restored', got.notes || got.handwriting || got.pictures
+          ? `${got.notes} notes, ${got.handwriting} handwritten pages and ${got.pictures} pictures came back. Nothing already here was removed.`
+          : 'Everything in that backup was already on this device.', [{ label: 'OK' }]);
+      } catch (err) {
+        busy.close();
+        alert2('Could Not Restore', String((err && err.message) || err), [{ label: 'OK' }]);
+      }
+    });
+    document.body.append(input);
+    input.click();
+  }
 
   function emptyTrash() {
     const count = notesIn(TRASH).length;
@@ -247,6 +294,12 @@ export function settingsScreen() {
 
     const attachCard = el('div', { class: 'group-card' });
     attachCard.append(row('Attachments', { iconName: 'photo', onPick: () => push(attachmentsScreen()) }));
+    attachCard.append(row('Back Up Everything', {
+      iconName: 'download',
+      sub: 'A zip of your notes as Markdown, your pictures and files, and everything needed to put it all back',
+      onPick: backUp,
+    }));
+    attachCard.append(row('Restore from Backup', { iconName: 'restore', onPick: restore }));
     attachCard.append(row('Empty Recently Deleted', {
       iconName: 'trash', destructive: true, onPick: emptyTrash, trail: false,
     }));
@@ -268,7 +321,7 @@ export function settingsScreen() {
     body.append(el('div', { class: 'group' }, statsCard));
 
     body.append(el('p', { class: 'settings-footnote' },
-      el('span', { text: 'Notes 0.5.8' }),
+      el('span', { text: 'Notes 0.5.9' }),
       el('span', {
         text: sync.status().signedIn
           ? 'Notes and handwriting sync to your account. Imported files and folders stay on this device.'
