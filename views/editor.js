@@ -18,6 +18,7 @@ import {
   bindScrollTitle, actionSheet, alert2, overlay, toast,
 } from '../lib/ui.js';
 import { push, pop } from '../lib/router.js';
+import { cardsInNote } from '../lib/cards.js';
 import { haptic } from '../lib/haptics.js';
 import {
   compressImage, putAttachment, hydrateAttachments, stripAttachmentUrls,
@@ -576,6 +577,17 @@ export function editorScreen(noteId, backLabel, opts = {}) {
     return [...content.querySelectorAll('.checkitem')];
   }
 
+  /* What the note offers revision, so writing a line the app does not
+     recognise is visible rather than silent. */
+  function cardCountLabel() {
+    const n = cardsInNote(note).length;
+    return n ? `${n} card${n === 1 ? '' : 's'} in this note` : 'None yet - see how to write one';
+  }
+
+  function openCards() {
+    import('./revise.js').then((m) => push(m.noteCardsScreen(note.id, 'Note')));
+  }
+
   function openMenu() {
     flush();
     const checks = checklistItems();
@@ -586,6 +598,7 @@ export function editorScreen(noteId, backLabel, opts = {}) {
       checks.length ? { label: 'Checklist Actions', icon: 'checklist', onPick: openChecklistMenu } : null,
       { label: note.locked ? 'Remove Lock' : 'Lock Note', icon: note.locked ? 'lock-open' : 'lock', onPick: toggleLock },
       { label: 'Move Note...', icon: 'folder', onPick: moveNote },
+      { label: 'Revision Cards', icon: 'cards', sub: cardCountLabel(), onPick: openCards },
       { label: 'Note Info', icon: 'info', onPick: openInfo },
       { label: 'Export as Text', icon: 'download', onPick: () => exportNoteFile(note) },
       { label: 'Delete', icon: 'trash', destructive: true, onPick: deleteNote },

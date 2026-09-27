@@ -24,6 +24,27 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.6.1',
+    items: [
+      {
+        icon: 'cards',
+        title: 'Revise From Your Own Notes',
+        body: 'Write "momentum :: mass times velocity" in a note, or a Q: with an '
+          + 'A: under it, or hide a word in {{double braces}} - and it becomes a '
+          + 'card. Revise on the Folders screen brings up whatever is due, and '
+          + 'spaces each card out further every time you get it right.',
+        tryIt: { label: 'Open Revise', go: (done) => done('revise') },
+      },
+      {
+        icon: 'doc',
+        title: 'Nothing to Keep in Step',
+        body: 'The note is the only copy. Correct a definition and the card is '
+          + 'corrected; delete the line and the card goes. There is no separate '
+          + 'pile of cards to maintain.',
+      },
+    ],
+  },
+  {
     version: '0.6.0',
     items: [
       {

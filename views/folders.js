@@ -23,6 +23,7 @@ import { editorScreen } from './editor.js';
 import { settingsScreen } from './settings.js';
 import { vaultScreen } from './vault.js';
 import { sharedListScreen } from './shared.js';
+import { reviseScreen, reviseSummaryText } from './revise.js';
 import { cachedBoards } from '../lib/shared.js';
 import { vaultSupported, vaults, addVault, removeVault, renameVault } from '../lib/vault.js';
 
@@ -365,6 +366,17 @@ export function foldersScreen() {
 
     /* --- pages written on together --- */
     const sharedCount = cachedBoards().length;
+    /* --- revision: the cards your own notes already contain --- */
+    const waiting = reviseSummaryText();
+    body.append(el('div', { class: 'group' },
+      el('div', { class: 'group-label', text: 'Revise' }),
+      el('div', { class: 'group-card' }, cell({
+        iconName: 'cards',
+        name: 'Revision Cards',
+        sub: waiting || 'Write "term :: meaning" in a note and it turns up here',
+        onPick: () => push(reviseScreen('Folders')),
+      }))));
+
     body.append(el('div', { class: 'group' },
       el('div', { class: 'group-label', text: 'Shared' }),
       el('div', { class: 'group-card' }, cell({
