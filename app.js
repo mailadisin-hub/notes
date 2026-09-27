@@ -13,7 +13,9 @@ import { mount, reset, push, openDetail, setSplitView } from './lib/router.js';
 import { foldersScreen } from './views/folders.js';
 import { showWhatsNew } from './views/whatsnew.js';
 
-load();
+/* Reading the notes is the one thing that has to finish before anything is
+   drawn; it comes from a database now, so the rest of the boot waits for it. */
+await load();
 applyTheme();
 applyTextScale();
 watchSystemTheme();

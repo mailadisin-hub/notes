@@ -25,6 +25,12 @@ import { importFiles, openFileNote } from './files.js';
 import { promptUnlock, ensurePasscode, isSealed, sealNote, unsealNote } from './lock.js';
 import { shareNoteText, exportNoteFile } from '../lib/share.js';
 
+/* How many rows are built before the list is shown, and how many more each
+   time it is scrolled towards the end. Enough to fill any screen at once. */
+const FIRST_PAGE = 60;
+const NEXT_PAGE = 80;
+
+
 export function listScreen(folderId) {
   const screen = el('section', { class: 'screen' });
   const body = el('div', { class: 'body' });
@@ -556,25 +562,54 @@ export function listScreen(folderId) {
 
     const gallery = store.settings.view === 'gallery' && !isTrash;
 
+    /* A thousand notes is a thousand rows, and building them all at once is a
+       freeze you can watch. Only what could be on screen is built; the rest
+       follows as it is scrolled towards, which keeps opening a big folder as
+       quick as opening a small one. */
+    pending = [];
     for (const group of grouped(list)) {
-      if (group.head) {
-        rowsHost.append(el('div', { class: 'section-head' },
-          group.pin ? icon('pin') : null, el('span', { text: group.head })));
-      }
-      if (gallery) {
-        const grid = el('div', { class: 'gallery' });
-        group.items.forEach((n) => grid.append(buildTile(n)));
-        rowsHost.append(grid);
-      } else {
-        const block = el('div', { class: 'rows' });
-        group.items.forEach((n) => block.append(buildRow(n)));
-        rowsHost.append(block);
-      }
+      if (group.head) pending.push({ head: group.head, pin: group.pin });
+      for (const note of group.items) pending.push({ note, gallery });
     }
+    at = 0;
+    holder = null;
+    showMore(FIRST_PAGE);
+  }
+
+  /* Rows of the same group share one container, so a group carried over a page
+     boundary carries its container with it. */
+  let pending = [];
+  let at = 0;
+  let holder = null;
+
+  function showMore(count) {
+    const until = Math.min(pending.length, at + count);
+    for (; at < until; at += 1) {
+      const item = pending[at];
+      if (item.head !== undefined) {
+        rowsHost.append(el('div', { class: 'section-head' },
+          item.pin ? icon('pin') : null, el('span', { text: item.head })));
+        holder = null;
+        continue;
+      }
+      const wanted = item.gallery ? 'gallery' : 'rows';
+      if (!holder || holder.className !== wanted) {
+        holder = el('div', { class: wanted });
+        rowsHost.append(holder);
+      }
+      holder.append(item.gallery ? buildTile(item.note) : buildRow(item.note));
+    }
+  }
+
+  /* Near the end of what has been built, build some more. */
+  function onScroll() {
+    if (at >= pending.length) return;
+    if (body.scrollHeight - body.scrollTop - body.clientHeight < 900) showMore(NEXT_PAGE);
   }
 
   function render() {
     const scrollTop = body.scrollTop;
+    body.removeEventListener('scroll', onScroll);
     body.innerHTML = '';
     body.append(el('h1', { class: 'large-title', text: folderName(folderId) }));
     if (!selecting) body.append(searchField());
@@ -582,6 +617,15 @@ export function listScreen(folderId) {
     renderRows();
     updateSelCount();
     bindScrollTitle(body, bar, body.querySelector('.large-title'));
+    body.addEventListener('scroll', onScroll, { passive: true });
+    body.scrollTop = scrollTop;
+    /* Coming back to a list that was scrolled a long way down: keep building
+       until what was on screen exists again. */
+    let guard = 0;
+    while (scrollTop && body.scrollHeight < scrollTop + body.clientHeight && at < pending.length && guard < 60) {
+      showMore(NEXT_PAGE);
+      guard += 1;
+    }
     body.scrollTop = scrollTop;
   }
 

@@ -24,6 +24,27 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.6.0',
+    items: [
+      {
+        icon: 'list',
+        title: 'Big Folders Open Instantly',
+        body: 'A folder with a thousand notes in it used to take a second to '
+          + 'open, building every row before showing you any. It now builds what '
+          + 'fits on screen and the rest as you scroll: a thousand notes opens '
+          + 'as quickly as ten.',
+      },
+      {
+        icon: 'doc',
+        title: 'No Ceiling on How Much You Write',
+        body: 'Notes were kept somewhere with a five megabyte limit - a couple '
+          + 'of thousand notes and saving would start failing. They have moved '
+          + 'somewhere measured in gigabytes. Nothing to do; it moves itself the '
+          + 'first time you open this version.',
+      },
+    ],
+  },
+  {
     version: '0.5.9',
     items: [
       {
