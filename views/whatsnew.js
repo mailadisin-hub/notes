@@ -24,6 +24,19 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.6.3',
+    items: [
+      {
+        icon: 'restore',
+        title: 'Earlier Versions of a Note',
+        body: 'A copy of a note is kept every few minutes while you are editing '
+          + 'it, and the last 45 days of those are in the note menu under '
+          + 'Earlier Versions. Going back to one keeps the current version '
+          + 'first, so it is never a one-way door. Locked notes are not copied.',
+      },
+    ],
+  },
+  {
     version: '0.6.2',
     items: [
       {

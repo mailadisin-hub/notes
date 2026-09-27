@@ -12,7 +12,7 @@
  * connection; the benefit is that shipping an update actually ships it.
  */
 
-const CACHE = 'notes-v16';
+const CACHE = 'notes-v17';
 /* The reader's fonts (KaTeX, PDF.js) are not listed: the fetch handler below
    caches them the first time a document needs them. */
 const SHELL = [
@@ -27,7 +27,7 @@ const SHELL = [
   './views/settings.js', './views/attachments.js', './views/markup.js',
   './views/lock.js', './views/inknote.js', './views/inkchrome.js',
   './views/pdfview.js', './views/mdview.js', './views/files.js', './views/vault.js',
-  './views/shared.js', './views/account.js', './views/background.js', './views/pictures.js', './views/whatsnew.js', './lib/gestures.js', './lib/zip.js', './lib/backup.js', './lib/cards.js', './views/revise.js', './lib/search.js', './views/search.js',
+  './views/shared.js', './views/account.js', './views/background.js', './views/pictures.js', './views/whatsnew.js', './lib/gestures.js', './lib/zip.js', './lib/backup.js', './lib/cards.js', './views/revise.js', './lib/search.js', './views/search.js', './lib/history.js', './views/history.js',
   './vendor/pdfjs/pdf.min.js', './vendor/pdfjs/pdf.worker.min.js',
   './vendor/marked.esm.js', './vendor/katex/katex.module.js', './vendor/katex/katex.min.css',
 ];

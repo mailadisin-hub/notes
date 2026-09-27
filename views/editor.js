@@ -19,6 +19,7 @@ import {
 } from '../lib/ui.js';
 import { push, pop } from '../lib/router.js';
 import { cardsInNote } from '../lib/cards.js';
+import { keepVersion } from '../lib/history.js';
 import { haptic } from '../lib/haptics.js';
 import {
   compressImage, putAttachment, hydrateAttachments, stripAttachmentUrls,
@@ -111,6 +112,9 @@ export function editorScreen(noteId, backLabel, opts = {}) {
     if (plainText(html).trim() || html.includes('data-att')) delete note.draft;
     note.updatedAt = Date.now();
     if (!save()) toast('Storage is full - free some space');
+    /* A copy for later, every few minutes of editing. It decides for itself
+       whether one is due, and a failure here never reaches the note. */
+    keepVersion(note).catch(() => {});
     dateLine.textContent = longStamp(note.updatedAt);
     bar.titleEl.textContent = displayTitle(note);
   }
@@ -584,6 +588,11 @@ export function editorScreen(noteId, backLabel, opts = {}) {
     return n ? `${n} card${n === 1 ? '' : 's'} in this note` : 'None yet - see how to write one';
   }
 
+  function openHistory() {
+    flush();
+    import('./history.js').then((m) => push(m.historyScreen(note.id, 'Note')));
+  }
+
   function openCards() {
     import('./revise.js').then((m) => push(m.noteCardsScreen(note.id, 'Note')));
   }
@@ -599,6 +608,7 @@ export function editorScreen(noteId, backLabel, opts = {}) {
       { label: note.locked ? 'Remove Lock' : 'Lock Note', icon: note.locked ? 'lock-open' : 'lock', onPick: toggleLock },
       { label: 'Move Note...', icon: 'folder', onPick: moveNote },
       { label: 'Revision Cards', icon: 'cards', sub: cardCountLabel(), onPick: openCards },
+      { label: 'Earlier Versions', icon: 'restore', onPick: openHistory },
       { label: 'Note Info', icon: 'info', onPick: openInfo },
       { label: 'Export as Text', icon: 'download', onPick: () => exportNoteFile(note) },
       { label: 'Delete', icon: 'trash', destructive: true, onPick: deleteNote },
