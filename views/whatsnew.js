@@ -24,6 +24,19 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.6.2',
+    items: [
+      {
+        icon: 'search',
+        title: 'Search Inside Everything',
+        body: 'The search button on the Folders screen looks through your notes, '
+          + 'the text inside imported PDFs, and the Markdown in your vault '
+          + 'folders - all at once, showing the line that matched.',
+        tryIt: { label: 'Try Search', go: (done) => done('search') },
+      },
+    ],
+  },
+  {
     version: '0.6.1',
     items: [
       {

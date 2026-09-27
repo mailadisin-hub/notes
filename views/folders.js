@@ -24,6 +24,7 @@ import { settingsScreen } from './settings.js';
 import { vaultScreen } from './vault.js';
 import { sharedListScreen } from './shared.js';
 import { reviseScreen, reviseSummaryText } from './revise.js';
+import { searchScreen } from './search.js';
 import { cachedBoards } from '../lib/shared.js';
 import { vaultSupported, vaults, addVault, removeVault, renameVault } from '../lib/vault.js';
 
@@ -42,7 +43,7 @@ export function foldersScreen() {
   const bar = navBar({
     left: [navIconButton('gear', () => push(settingsScreen()), 'Settings')],
     title: 'Folders',
-    right: [editBtn],
+    right: [navIconButton('search', () => push(searchScreen('Folders')), 'Search'), editBtn],
   });
 
   const toolbar = el('footer', { class: 'toolbar' },
