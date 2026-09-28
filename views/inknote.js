@@ -10,7 +10,7 @@
 
 import { el, actionSheet, toast, alert2, progressAlert } from '../lib/ui.js';
 import { pop } from '../lib/router.js';
-import { store, save, newNote, noteById } from '../lib/store.js';
+import { store, save, saveNow, newNote, noteById } from '../lib/store.js';
 import { haptic } from '../lib/haptics.js';
 import { getInk, putInk } from '../lib/library.js';
 import { boxOf, BOARD, BOARD_START_TOP } from '../lib/ink.js';
@@ -420,6 +420,8 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
       }
       flush();
     }
+    /* Leaving a page is the moment it has to be on disk. */
+    saveNow();
     view.destroy();
     chrome.destroy();
   };

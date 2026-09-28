@@ -10,7 +10,7 @@
  */
 
 import {
-  store, save, uid, noteById, newNote, folderName, displayTitle, plainText,
+  store, save, saveNow, uid, noteById, newNote, folderName, displayTitle, plainText,
   longStamp, countsOf, markUnlocked, purgeNoteById,
 } from '../lib/store.js';
 import {
@@ -136,6 +136,9 @@ export function editorScreen(noteId, backLabel, opts = {}) {
       delete note.draft;
       save();
     }
+    /* Leaving a note is the moment it has to be on disk: the next thing that
+       happens is often the app being closed. */
+    saveNow();
   };
 
   /* ------------------------------------------------------ block helpers */

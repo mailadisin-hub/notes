@@ -24,6 +24,19 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.4',
+    items: [
+      {
+        icon: 'restore',
+        title: 'Notes That Vanished',
+        body: 'A bug could stop the app writing anything to disk at all, quietly, '
+          + 'and a note you had just started could disappear for good. Both causes '
+          + 'are fixed, writing is saved as you type, and anything that was '
+          + 'stranded by it is recovered when you open this version.',
+      },
+    ],
+  },
+  {
     version: '0.7.3',
     items: [
       {
