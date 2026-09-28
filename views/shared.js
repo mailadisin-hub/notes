@@ -25,6 +25,7 @@ import { inkChrome } from './inkchrome.js';
 import { isDark } from './inknote.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
 import { pickPicture, placePicture, sharePage, pickPdf, pdfPagePlacement } from './pictures.js';
+import { marksButton, editMark, marksFromMeta, marksToMeta } from './marks.js';
 import { signInFlow, nameFlow } from './account.js';
 
 const PAGE_WIDTH = 800;
@@ -381,6 +382,7 @@ export function sharedPageScreen(boardId) {
     board: true,
     strokes: [],
     images: [],
+    marks: [],
     paper: 'plain',
   };
   /* Pages written before they were boards have their strokes up by the origin,
@@ -405,6 +407,9 @@ export function sharedPageScreen(boardId) {
 
   const board = () => (session && session.board) || {};
 
+  /* Declared before the view so the view's callbacks can reach it. */
+  let places = null;
+
   const view = inkView({
     pages: [page],
     grow: false,
@@ -416,8 +421,15 @@ export function sharedPageScreen(boardId) {
     fingerDraws: () => !!store.settings.fingerDraws,
     scribbleErases: () => store.settings.scribbleErases !== false,
     onScribbleErase: (n) => toast(n === 1 ? 'Crossed out - undo brings it back' : `${n} crossed out - undo brings them back`),
-    onChange: () => sendChanges(),
+    onChange: () => {
+      sendChanges();
+      sendMarks();
+    },
     onDrawing: (stroke) => sendLive(stroke),
+    onMarkTap: (mark) => editMark(view, mark, () => {
+      sendMarks();
+      if (places) places.refresh();
+    }),
     onHistory: () => chrome.sync(),
     onView: (v) => chrome.setView(v),
     imageFor: async (im) => {
@@ -447,6 +459,11 @@ export function sharedPageScreen(boardId) {
 
   const people = el('div', { class: 'pill-people', 'aria-live': 'polite' });
 
+  places = marksButton(view, () => {
+    sendMarks();
+    places.refresh();
+  });
+
   const chrome = inkChrome(view, {
     titleEl: title,
     onBack: () => pop(),
@@ -454,6 +471,7 @@ export function sharedPageScreen(boardId) {
     pages: false,
     onImage: addPicture,
     navExtra: people,
+    marksEl: places.el,
   });
 
   // Covers the page, not the toolbars, until the board has arrived: a stroke
@@ -607,6 +625,23 @@ export function sharedPageScreen(boardId) {
       page.paper = paper;
       view.redraw();
     }
+    applyMarks(meta);
+  }
+
+  /* Markers live under the board's meta rather than beside the strokes,
+     because meta is already writable by everyone on the board - putting them
+     anywhere else would need a new database rule published before a single
+     pin could be dropped. They are small and change rarely, so the whole set
+     is written at once rather than one at a time. */
+  function applyMarks(meta) {
+    page.marks = marksFromMeta(meta || board().meta, view.draggingMark());
+    view.redraw();
+    if (places) places.refresh();
+  }
+
+  function sendMarks() {
+    if (!session) return;
+    session.write({ 'meta/marks': marksToMeta(page.marks) });
   }
 
   function applyPeople() {

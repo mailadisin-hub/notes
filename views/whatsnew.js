@@ -24,6 +24,18 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.8',
+    items: [
+      {
+        icon: 'pin',
+        title: 'Markers on Shared Boards Too',
+        body: 'The pin was only on your own handwritten pages. It is on shared '
+          + 'boards now, and the markers are shared with it - name a place and '
+          + 'everyone on the board can jump straight to it.',
+      },
+    ],
+  },
+  {
     version: '0.7.7',
     items: [
       {

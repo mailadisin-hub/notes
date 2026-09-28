@@ -149,3 +149,48 @@ export function pickColour(view, mark, onChange = () => {}) {
     },
   })));
 }
+
+/* --------------------------------------------- markers on a shared board */
+
+/**
+ * The markers in a shared board's meta, as the view wants them.
+ *
+ * [held] is the marker someone is dragging right now, if any: it is kept as it
+ * is rather than being replaced, so a remote update cannot tug a pin out of
+ * the hand moving it.
+ */
+export function marksFromMeta(meta, held = null) {
+  const remote = (meta || {}).marks || {};
+  const out = [];
+  for (const [id, m] of Object.entries(remote)) {
+    if (!m) continue;
+    if (held && held.id === id) {
+      out.push(held);
+      continue;
+    }
+    out.push({
+      id,
+      x: Number(m.x) || 0,
+      y: Number(m.y) || 0,
+      name: String(m.name || '').slice(0, 40),
+      colour: String(m.colour || '#ff3b30').slice(0, 24),
+    });
+  }
+  if (held && !out.some((m) => m.id === held.id)) out.push(held);
+  return out;
+}
+
+/** The markers as they are written back, or null when there are none left. */
+export function marksToMeta(marks) {
+  const map = {};
+  for (const m of marks || []) {
+    if (!m || !m.id) continue;
+    map[m.id] = {
+      x: Math.round(Number(m.x) * 10) / 10 || 0,
+      y: Math.round(Number(m.y) * 10) / 10 || 0,
+      name: String(m.name || '').slice(0, 40),
+      colour: String(m.colour || '#ff3b30').slice(0, 24),
+    };
+  }
+  return Object.keys(map).length ? map : null;
+}
