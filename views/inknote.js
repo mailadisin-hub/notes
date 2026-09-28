@@ -19,6 +19,7 @@ import { inkView } from '../lib/inkview.js';
 import { inkChrome } from './inkchrome.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
 import { pickPicture, placePicture, sharePage, pagePdf, pickPdf, pdfPagePlacement } from './pictures.js';
+import { marksButton, editMark } from './marks.js';
 import { putAttachment, getAttachment } from '../lib/attachments.js';
 
 export const PAGE_WIDTH = 800;
@@ -69,6 +70,11 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     },
     onHistory: () => chrome.sync(),
     onView: (v) => chrome.setView(v),
+    onMarkTap: (mark) => editMark(view, mark, () => {
+      dirty = true;
+      scheduleSave();
+      places.refresh();
+    }),
     imageFor: async (im) => {
       const rec = await getAttachment(im.att);
       return rec && rec.blob ? createImageBitmap(rec.blob) : null;
@@ -93,12 +99,20 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
   });
   title.addEventListener('keydown', (e) => { if (e.key === 'Enter') title.blur(); });
 
+  /* Places only make sense on a board, where there is somewhere to lose. */
+  const places = marksButton(view, () => {
+    dirty = true;
+    scheduleSave();
+    places.refresh();
+  });
+
   const chrome = inkChrome(view, {
     titleEl: title,
     onBack: () => pop(),
     onMenu: openMenu,
     pages: false,
     onImage: addPicture,
+    marksEl: places.el,
   });
 
   screen.append(el('div', { class: 'ink-stage' }, view.el, chrome.el));
@@ -117,7 +131,11 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     if (!loaded || !dirty) return;
     dirty = false;
     const at = await putInk(note.id, {
-      strokes: page.strokes, paper: page.paper, images: page.images, board: page.board,
+      strokes: page.strokes,
+      paper: page.paper,
+      images: page.images,
+      board: page.board,
+      marks: page.marks,
     });
     note.updatedAt = at;
     note.inkAt = at;
@@ -128,6 +146,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
   getInk(note.id).then((ink) => {
     page.strokes = ink.strokes;
     page.images = ink.images;
+    page.marks = ink.marks || [];
     page.paper = ink.paper || store.settings.defaultPaper || 'plain';
     if (ink.board) shapePage(true);
     loaded = true;
@@ -148,6 +167,7 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     if (dirty) return;
     page.strokes = ink.strokes;
     page.images = ink.images;
+    page.marks = ink.marks || [];
     page.paper = ink.paper || page.paper;
     view.clearHistory();
     /* Another device may have turned the whiteboard on or off, which changes

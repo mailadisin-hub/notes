@@ -24,6 +24,29 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.5',
+    items: [
+      {
+        icon: 'arrows',
+        title: 'A Board No Bigger Than It Needs',
+        body: 'A whiteboard used to be enormous from the moment you opened it, '
+          + 'which made it easy to drift off into blank paper and lose what you '
+          + 'were doing. It now reaches about a screen past whatever you have '
+          + 'written, and grows as you use it - so there is always something of '
+          + 'yours within one swipe.',
+      },
+      {
+        icon: 'pin',
+        title: 'Mark Places and Jump Back',
+        body: 'The pin in the corner drops a marker where you are. Give it a '
+          + 'name and a colour, and it appears in that list - tap it and you are '
+          + 'back there. Drag a pin to move it, tap one on the board to rename, '
+          + 'recolour or remove it.',
+        tryIt: { label: 'Open a Board', go: (done) => done('ink') },
+      },
+    ],
+  },
+  {
     version: '0.7.4',
     items: [
       {

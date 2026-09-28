@@ -62,6 +62,7 @@ function button(name, label, onPick, extraClass = '') {
  *                       swatch shows dark whatever the theme
  * @param opts.onImage   when set, a picture button that calls it
  * @param opts.navExtra  an element shown after the title (who else is here)
+ * @param opts.marksEl   the places list, shown beside the menu on a board
  */
 export function inkChrome(view, opts) {
   const sizes = { pen: 1, pencil: 1, highlighter: 1 };
@@ -111,7 +112,11 @@ export function inkChrome(view, opts) {
 
   /* ---------------------------------------------------------------- right */
 
-  const more = el('div', { class: 'pill pill-more' }, button('ellipsis', 'More', () => opts.onMenu && opts.onMenu()));
+  /* The places list sits beside the menu, in the corner, because it is about
+     where you are on the board rather than about the note. */
+  const more = el('div', { class: 'pill pill-more' },
+    opts.marksEl || null,
+    button('ellipsis', 'More', () => opts.onMenu && opts.onMenu()));
 
   /* --------------------------------------------------------------- bottom */
 
