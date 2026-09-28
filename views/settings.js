@@ -18,6 +18,7 @@ import * as sync from '../lib/sync.js';
 import { signInFlow as signIn, nameFlow, changePasswordFlow } from './account.js';
 import { applyTheme, applyTextScale } from '../lib/theme.js';
 import { showWhatsNew } from './whatsnew.js';
+import { PEN_HOLD, PEN_CLICK, holdAction, clickAction, labelOf } from '../lib/pen.js';
 
 export function settingsScreen() {
   const screen = el('section', { class: 'screen grouped' });
@@ -105,6 +106,35 @@ export function settingsScreen() {
   }
 
   const fmtBytes = (n) => (n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+
+  /* A stylus button does two separate things, so it is set in two parts
+     rather than one list that means different things in different places. */
+  function penButtonSheet() {
+    actionSheet('Pen Button', [
+      {
+        label: 'While Writing',
+        icon: 'pen',
+        sub: labelOf(PEN_HOLD, holdAction(store.settings)),
+        onPick: () => actionSheet('Hold the Button While Writing', PEN_HOLD.map((a) => ({
+          label: a.label,
+          sub: a.sub,
+          selected: holdAction(store.settings) === a.id,
+          onPick: () => { store.settings.penHold = a.id; save(); render(); },
+        }))),
+      },
+      {
+        label: 'Clicking It',
+        icon: 'hand',
+        sub: labelOf(PEN_CLICK, clickAction(store.settings)),
+        onPick: () => actionSheet('Click With the Pen Off the Page', PEN_CLICK.map((a) => ({
+          label: a.label,
+          sub: a.sub,
+          selected: clickAction(store.settings) === a.id,
+          onPick: () => { store.settings.penClick = a.id; save(); render(); },
+        }))),
+      },
+    ], { message: 'Some styluses report their button only while touching the screen. If clicking does nothing, that is why.' });
+  }
 
   /* ---------------------------------------------------------- backups */
 
@@ -263,6 +293,12 @@ export function settingsScreen() {
         toggleRow('Haptics', 'haptic',
           () => store.settings.haptics !== false,
           (v) => { store.settings.haptics = v; setHapticsEnabled(v); }),
+        row('Pen Button', {
+          iconName: 'pen',
+          value: labelOf(PEN_HOLD, holdAction(store.settings)),
+          sub: 'What the button on a stylus does',
+          onPick: penButtonSheet,
+        }),
         toggleRow('Scribble to Erase', 'eraser',
           () => store.settings.scribbleErases !== false,
           (v) => { store.settings.scribbleErases = v; }),
@@ -321,7 +357,7 @@ export function settingsScreen() {
     body.append(el('div', { class: 'group' }, statsCard));
 
     body.append(el('p', { class: 'settings-footnote' },
-      el('span', { text: 'Notes 0.7.5' }),
+      el('span', { text: 'Notes 0.7.6' }),
       el('span', {
         text: sync.status().signedIn
           ? 'Notes and handwriting sync to your account. Imported files and folders stay on this device.'

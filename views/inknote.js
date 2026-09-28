@@ -20,6 +20,7 @@ import { inkChrome } from './inkchrome.js';
 import { backgroundSheet, backgroundLabel, INK_NAMES } from './background.js';
 import { pickPicture, placePicture, sharePage, pagePdf, pickPdf, pdfPagePlacement } from './pictures.js';
 import { marksButton, editMark } from './marks.js';
+import { holdAction, clickAction } from '../lib/pen.js';
 import { putAttachment, getAttachment } from '../lib/attachments.js';
 
 export const PAGE_WIDTH = 800;
@@ -70,6 +71,10 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
     },
     onHistory: () => chrome.sync(),
     onView: (v) => chrome.setView(v),
+    /* The button on the pen, as it has been set up. Read each time rather than
+       captured, so changing it in Settings takes effect without reopening. */
+    penHold: () => holdAction(store.settings),
+    onPenButton: () => penClicked(),
     onMarkTap: (mark) => editMark(view, mark, () => {
       dirty = true;
       scheduleSave();
@@ -358,6 +363,33 @@ export function inkNoteScreen(noteId, backLabel, opts = {}) {
         alert2('Could Not Add That PDF', String((err && err.message) || err), [{ label: 'OK' }]);
       },
     });
+  }
+
+  /* A click of the pen's button with the pen off the paper. */
+  function penClicked() {
+    const action = clickAction(store.settings);
+    if (action === 'none') return;
+    haptic('tap');
+    if (action === 'undo') {
+      view.undo();
+      chrome.sync();
+    } else if (action === 'eraser') {
+      chrome.toggleEraser();
+    } else if (action === 'ruler') {
+      chrome.toggleRuler();
+    } else if (action === 'mark') {
+      const made = view.addMark({});
+      dirty = true;
+      scheduleSave();
+      places.refresh();
+      editMark(view, made, () => {
+        dirty = true;
+        scheduleSave();
+        places.refresh();
+      }, true);
+    } else if (action === 'lastPen') {
+      chrome.swapPens();
+    }
   }
 
   function openMenu() {

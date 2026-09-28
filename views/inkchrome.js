@@ -87,6 +87,9 @@ export function inkChrome(view, opts) {
   /* --------------------------------------------------------------- tools */
 
   const toolBtns = new Map();
+  /* What the eraser goes back to, and the nib before the last swap. */
+  let lastDrawing = 'pen';
+  let previousNib = null;
   const colourDot = el('button', { class: 'pill-btn pill-colour', 'aria-label': 'Colour and size', title: 'Colour and size' },
     el('span', { class: 'pill-dot' }));
   pressable(colourDot, () => togglePopover());
@@ -264,6 +267,7 @@ export function inkChrome(view, opts) {
       togglePopover();
       return;
     }
+    if (current !== 'eraser') lastDrawing = current;
     current = id;
     if (id === 'eraser') view.setMode('erase');
     else applyTool();
@@ -300,6 +304,29 @@ export function inkChrome(view, opts) {
   return {
     el: root,
     sync: paint,
+    /* Things the pen's button can ask for. They go through the toolbar rather
+       than the view so that the buttons light up to match, and so a click of
+       the pen looks exactly like a tap of the tool. */
+    toggleEraser() {
+      pick(current === 'eraser' ? lastDrawing : 'eraser');
+    },
+    toggleRuler() {
+      const on = !view.ruler;
+      view.setRuler(on || null);
+      rulerBtn.classList.toggle('on', on);
+    },
+    swapPens() {
+      const pens = NIBS[current === 'eraser' ? 'pen' : current];
+      if (!pens || pens.length < 2) return pick(current === 'pen' ? 'pencil' : 'pen');
+      const here = nibOf(current === 'eraser' ? 'pen' : current);
+      const next = previousNib && previousNib !== here ? previousNib : pens[(pens.indexOf(here) + 1) % pens.length];
+      previousNib = here;
+      store.settings.nibs = { ...(store.settings.nibs || {}), pen: next };
+      save();
+      if (current === 'eraser') pick('pen');
+      else applyTool();
+      return undefined;
+    },
     setView({ page, pages, scale }) {
       pageNow.textContent = String(page + 1);
       pageAll.textContent = String(pages);

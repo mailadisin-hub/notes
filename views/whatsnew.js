@@ -24,6 +24,21 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.6',
+    items: [
+      {
+        icon: 'pen',
+        title: 'The Button on Your Stylus',
+        body: 'Settings > Pen Button sets what it does, in two parts. Holding it '
+          + 'while writing can erase, highlight or use the pencil - or nothing at '
+          + 'all. Clicking it with the pen off the page can undo, swap to the '
+          + 'eraser, put the ruler down, drop a marker, or flip between your two '
+          + 'most recent pens.',
+        tryIt: { label: 'Open Settings', go: (done) => done('settings') },
+      },
+    ],
+  },
+  {
     version: '0.7.5',
     items: [
       {
