@@ -7,7 +7,8 @@
  *   under it      undo, redo, and the hand: whether a finger draws
  *   top centre    pen, pencil, highlighter, eraser, a picture, and the colour
  *   top right     everything else, behind ...
- *   bottom left   page n of m, zoom (tap to fit), and the lock - pen scrolls
+ *   bottom left   page n of m, zoom (tap to fit), and the lock, which pins
+ *                 the page down so nothing is written or moved
  *   bottom right  previous and next page
  *
  * On a phone-width page the tools drop to the bottom, where the thumb is, and
@@ -17,7 +18,7 @@
  * dot does the same.
  */
 
-import { el, icon, pressable } from '../lib/ui.js';
+import { el, icon, pressable, toast } from '../lib/ui.js';
 import { haptic } from '../lib/haptics.js';
 import { store, save } from '../lib/store.js';
 import { INK, INK_COLOURS, HIGHLIGHT_COLOURS, SIZE_STEPS, TOOLS, PEN_KNOBS, penStyle } from '../lib/ink.js';
@@ -128,9 +129,13 @@ export function inkChrome(view, opts) {
   const pageStack = el('div', { class: 'pill-page' }, pageNow, pageAll);
   const zoom = el('button', { class: 'pill-zoom', 'aria-label': 'Fit to width', title: 'Fit to width', text: '100%' });
   pressable(zoom, () => view.zoomToFit());
-  const lockBtn = button('lock-open', 'Lock for reading', () => {
-    view.setReadOnly(!view.readOnly);
+  /* Locking pins the page down completely - nothing written, nothing moved -
+     so it is worth saying which way it just went. */
+  const lockBtn = button('lock-open', 'Lock the page', () => {
+    const locked = !view.readOnly;
+    view.setReadOnly(locked);
     paint();
+    toast(locked ? 'Locked - nothing can be written or moved' : 'Unlocked');
   });
   const pagePill = el('div', { class: 'pill pill-status' },
     opts.pages ? pageStack : null,

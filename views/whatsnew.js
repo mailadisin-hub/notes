@@ -24,6 +24,19 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.7',
+    items: [
+      {
+        icon: 'lock',
+        title: 'The Lock Actually Locks',
+        body: 'It used to stop you writing but still let the page be shoved '
+          + 'around. Now it pins everything down - nothing written, nothing '
+          + 'moved, no panning or zooming - which is what you want when you are '
+          + 'reading, or resting a hand on a page with a PDF on it.',
+      },
+    ],
+  },
+  {
     version: '0.7.6',
     items: [
       {
