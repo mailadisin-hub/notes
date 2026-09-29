@@ -24,13 +24,21 @@ export function fileLabel(name, type, size) {
 }
 
 /** Opens the system file picker and files everything chosen into [folderId]. */
-export function importFiles(folderId, onDone) {
-  const input = el('input', { type: 'file', multiple: true, style: 'display:none' });
+/**
+ * Brings files in. [accept] narrows what the picker offers, and [openIt] hands
+ * back the first note added so the caller can open it straight away - which is
+ * what someone choosing one PDF actually wants, rather than being returned to a
+ * list to find it.
+ */
+export function importFiles(folderId, onDone, { accept = null, openIt = false } = {}) {
+  const input = el('input', { type: 'file', multiple: !openIt, style: 'display:none' });
+  if (accept) input.accept = accept;
   input.addEventListener('change', async () => {
     const files = [...(input.files || [])];
     input.remove();
     if (!files.length) return;
     let added = 0;
+    let first = null;
     for (const file of files) {
       try {
         const fileId = uid();
@@ -49,13 +57,15 @@ export function importFiles(folderId, onDone) {
           updatedAt: Date.now(),
         });
         added += 1;
+        if (!first) first = note;
       } catch {
         toast(`Could not import ${file.name}`);
       }
     }
     save();
-    if (added) toast(added === 1 ? 'File added' : `${added} files added`);
-    if (onDone) onDone(added);
+    if (added && !openIt) toast(added === 1 ? 'File added' : `${added} files added`);
+    if (onDone) onDone(added, first);
+    if (openIt && first) openFileNote(first, 'Folders');
   });
   document.body.append(input);
   input.click();

@@ -18,7 +18,7 @@
  * dot does the same.
  */
 
-import { el, icon, pressable, toast } from '../lib/ui.js';
+import { el, icon, pressable, toast, actionSheet } from '../lib/ui.js';
 import { haptic } from '../lib/haptics.js';
 import { store, save } from '../lib/store.js';
 import { INK, INK_COLOURS, HIGHLIGHT_COLOURS, SIZE_STEPS, TOOLS, PEN_KNOBS, penStyle } from '../lib/ink.js';
@@ -129,13 +129,27 @@ export function inkChrome(view, opts) {
   const pageStack = el('div', { class: 'pill-page' }, pageNow, pageAll);
   const zoom = el('button', { class: 'pill-zoom', 'aria-label': 'Fit to width', title: 'Fit to width', text: '100%' });
   pressable(zoom, () => view.zoomToFit());
-  /* Locking pins the page down completely - nothing written, nothing moved -
-     so it is worth saying which way it just went. */
-  const lockBtn = button('lock-open', 'Lock the page', () => {
-    const locked = !view.readOnly;
-    view.setReadOnly(locked);
-    paint();
-    toast(locked ? 'Locked - nothing can be written or moved' : 'Unlocked');
+  /* Pinning a page is usually about keeping it still while you write on it, so
+     the useful locks are the ones that hold an axis and leave the pen alone.
+     Holding everything is there too, for reading. */
+  const LOCKS = [
+    { id: 'free', label: 'Moves Freely', icon: 'lock-open', said: 'Unlocked' },
+    { id: 'x', label: 'No Sideways', icon: 'arrow-down', said: 'Only moves up and down - you can still write' },
+    { id: 'y', label: 'No Up and Down', icon: 'arrow-left', said: 'Only moves sideways - you can still write' },
+    { id: 'all', label: 'Hold Everything', icon: 'lock', said: 'Held - nothing can be written or moved' },
+  ];
+
+  const lockBtn = button('lock-open', 'How the page moves', () => {
+    actionSheet('How the Page Moves', LOCKS.map((l) => ({
+      label: l.label,
+      icon: l.icon,
+      selected: view.lock === l.id,
+      onPick: () => {
+        view.setLock(l.id);
+        paint();
+        toast(l.said);
+      },
+    })), { message: 'Locking an axis keeps the page still while you write on it.' });
   });
   const pagePill = el('div', { class: 'pill pill-status' },
     opts.pages ? pageStack : null,
@@ -289,8 +303,10 @@ export function inkChrome(view, opts) {
     colourDot.style.setProperty('--sw', c === INK ? '' : c);
     colourDot.hidden = current === 'eraser';
     handBtn.classList.toggle('on', !!store.settings.fingerDraws);
-    lockBtn.classList.toggle('on', !!view.readOnly);
-    lockBtn.querySelector('use').setAttribute('href', view.readOnly ? '#i-lock' : '#i-lock-open');
+    const lock = LOCKS.find((l) => l.id === view.lock) || LOCKS[0];
+    lockBtn.classList.toggle('on', lock.id !== 'free');
+    lockBtn.querySelector('use').setAttribute('href', `#i-${lock.icon}`);
+    lockBtn.setAttribute('aria-label', `How the page moves: ${lock.label}`);
     undoBtn.classList.toggle('disabled', !view.canUndo());
     redoBtn.classList.toggle('disabled', !view.canRedo());
   }

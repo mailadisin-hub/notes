@@ -25,6 +25,7 @@ import { vaultScreen } from './vault.js';
 import { sharedListScreen } from './shared.js';
 import { reviseScreen, reviseSummaryText } from './revise.js';
 import { searchScreen } from './search.js';
+import { importFiles } from './files.js';
 import { cachedBoards } from '../lib/shared.js';
 import { vaultSupported, vaults, addVault, removeVault, renameVault } from '../lib/vault.js';
 
@@ -49,10 +50,18 @@ export function foldersScreen() {
   const toolbar = el('footer', { class: 'toolbar' },
     el('div', { class: 'toolbar-row' },
       el('div', { class: 'toolbar-left' },
-        pressable(el('button', { 'aria-label': 'New folder' }, icon('folder-new')), promptNewFolder)),
+        pressable(el('button', { 'aria-label': 'New folder' }, icon('folder-new')), promptNewFolder),
+        /* Opening a PDF to write on was buried in a folder's menu, which is
+           no use to someone who has just been handed one. */
+        pressable(el('button', { 'aria-label': 'Open a PDF' }, icon('doc')), openPdf)),
       el('div', { class: 'toolbar-count' }),
       el('div', { class: 'toolbar-right' },
         pressable(el('button', { class: 'compose', 'aria-label': 'New note' }, icon('compose')), composeHere))));
+
+  /* Straight from the device into something you can write on. */
+  function openPdf() {
+    importFiles(firstRealFolder(), null, { accept: 'application/pdf,.pdf', openIt: true });
+  }
 
   function composeHere() {
     const folder = firstRealFolder();

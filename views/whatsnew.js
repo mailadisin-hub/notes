@@ -24,6 +24,26 @@ const SEEN_KEY = 'notes.seenVersion';
  */
 export const RELEASES = [
   {
+    version: '0.7.9',
+    items: [
+      {
+        icon: 'lock',
+        title: 'Lock One Direction, Keep Writing',
+        body: 'The lock button now asks how the page should move: freely, no '
+          + 'sideways, no up and down, or hold everything. The first three let '
+          + 'you carry on writing - lock sideways and a column of PDF pages only '
+          + 'scrolls up and down while you annotate it.',
+      },
+      {
+        icon: 'doc',
+        title: 'Open a PDF From the Front',
+        body: 'There is a PDF button on the Folders screen now. Pick one and it '
+          + 'opens straight away, ready to write on, instead of being buried in '
+          + 'a folder menu.',
+      },
+    ],
+  },
+  {
     version: '0.7.8',
     items: [
       {
